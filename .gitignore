@@ -1,0 +1,17 @@
+/dist
+/build
+/venv
+*.egg
+*.egg-info
+*.pyc
+
+/.idea
+/.project
+/.pydevproject
+/.settings
+/.sublime
+
+/.tox
+/.cache
+/.eggs
+/.pytest_cache/
