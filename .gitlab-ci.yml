@@ -1,0 +1,45 @@
+include:
+  - project: "waldur/waldur-pipelines"
+    file: "/templates/stages.yml"
+  - project: "waldur/waldur-pipelines"
+    file: "/templates/test/check-merge-compatibility.yml"
+  - project: "waldur/waldur-pipelines"
+    file: "/templates/test/lint-md-files.yml"
+  - project: "waldur/waldur-pipelines"
+    file: "/templates/release/python-module-release.yml"
+
+Run linters:
+  image: "$CI_REGISTRY/waldur/waldur-pipelines/python:3.8"
+  stage: test
+  interruptible: true
+  rules:
+    # Skip tests if specified
+    - if: '$SKIP_TESTS == "true" || $SKIP_TESTS == "yes"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    # If tagged release
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+    # If event is related to a created merge request
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  script:
+    - pip install pre-commit
+    - pre-commit run --all
+
+Run tests:
+  image: "$CI_REGISTRY/waldur/waldur-pipelines/python:3.8"
+  stage: test
+  interruptible: true
+  rules:
+    # Skip tests if specified
+    - if: '$SKIP_TESTS == "true" || $SKIP_TESTS == "yes"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    # If tagged release
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+    # If event is related to a created merge request
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  script:
+    - pip install -e .[tests]
+    - python setup.py test
