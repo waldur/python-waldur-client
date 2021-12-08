@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import find_packages, setup
+from setuptools import setup
 
 install_requires = [
     "requests>=2.6.0",
@@ -24,7 +24,7 @@ setup(
     install_requires=install_requires,
     tests_require=tests_requires,
     package_dir={"": "src"},
-    packages=find_packages("src", exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
+    py_modules=["waldur_client"],
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
