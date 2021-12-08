@@ -27,7 +27,6 @@ setup(
     packages=find_packages("src", exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     classifiers=[
         "Intended Audience :: Developers",
-        "Intended Audience :: Integrators",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
