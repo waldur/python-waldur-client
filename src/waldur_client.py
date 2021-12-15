@@ -1,5 +1,4 @@
 import dataclasses
-import json
 import time
 from enum import Enum
 from typing import List, Optional
@@ -242,13 +241,16 @@ class WaldurClient(object):
         return self._make_request("head", url, valid_states=[200], **kwargs)
 
     def _post(self, url, valid_states, **kwargs):
-        return self._make_request("post", url, valid_states, 3, **kwargs)
+        return self._make_request("post", url, valid_states, **kwargs)
 
     def _put(self, url, valid_states, **kwargs):
-        return self._make_request("put", url, valid_states, 3, **kwargs)
+        return self._make_request("put", url, valid_states, **kwargs)
+
+    def _patch(self, url, valid_states, **kwargs):
+        return self._make_request("patch", url, valid_states, **kwargs)
 
     def _delete(self, url, valid_states, **kwargs):
-        return self._make_request("delete", url, valid_states, 3, **kwargs)
+        return self._make_request("delete", url, valid_states, **kwargs)
 
     def _make_get_query(self, url, query_params, get_first=False, get_few=False):
         """
@@ -332,7 +334,11 @@ class WaldurClient(object):
 
     def _update_resource(self, endpoint, uuid, payload):
         url = self._build_resource_url(endpoint, uuid)
-        return self._put(url, [200], data=json.dumps(payload))
+        return self._put(url, [200], json=payload)
+
+    def _patch_resource(self, endpoint, uuid, payload):
+        url = self._build_resource_url(endpoint, uuid)
+        return self._patch(url, [200], json=payload)
 
     def _delete_resource_by_url(self, url):
         return self._delete(url, [202, 204])
@@ -1405,22 +1411,14 @@ class WaldurClient(object):
 
     def _serialize_project(
         self,
-        name=None,
-        backend_id=None,
-        description="",
-        end_date=None,
-        oecd_fos_2007_code=None,
         type_uuid=None,
+        **kwargs,
     ):
         type_url = type_uuid and self._build_resource_url(
             self.Endpoints.ProjectTypes, type_uuid
         )
         return {
-            "name": name,
-            "backend_id": backend_id,
-            "description": description,
-            "end_date": end_date,
-            "oecd_fos_2007_code": oecd_fos_2007_code,
+            **kwargs,
             "type": type_url,
         }
 
@@ -1434,7 +1432,7 @@ class WaldurClient(object):
 
     def update_project(self, project_uuid, **kwargs):
         payload = self._serialize_project(**kwargs)
-        return self._update_resource(
+        return self._patch_resource(
             self.Endpoints.Project, project_uuid, payload=payload
         )
 
