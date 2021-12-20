@@ -1036,6 +1036,15 @@ class WaldurClient(object):
         )
         return self._post(url, valid_states=[200])
 
+    def marketplace_order_item_terminate(self, order_item_uuid: str):
+        url = self._build_resource_url(
+            self.Endpoints.MarketplaceOrderItem,
+            order_item_uuid,
+            action="terminate",
+        )
+
+        return self._post(url, valid_states=[202])
+
     def _get_resource_from_creation_order(
         self,
         order_uuid,
