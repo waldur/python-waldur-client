@@ -99,6 +99,7 @@ class WaldurClient(object):
         Image = "openstacktenant-images"
         Instance = "openstacktenant-instances"
         Invoice = "invoices"
+        InvoiceItems = "invoice-items"
         MarketplaceCategories = "marketplace-categories"
         MarketplaceOffering = "marketplace-offerings"
         MarketplaceOrder = "marketplace-orders"
@@ -1551,6 +1552,9 @@ class WaldurClient(object):
     def invoice_set_state_paid(self, invoice_uuid: str):
         url = self._build_resource_url(self.Endpoints.Invoice, invoice_uuid, "paid")
         return self._post(url, valid_states=[200])
+
+    def list_invoice_items(self, filters=None):
+        return self._query_resource_list(self.Endpoints.InvoiceItems, filters)
 
     def list_payment_profiles(self, filters=None):
         if "payment_type" in filters:
