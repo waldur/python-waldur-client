@@ -1466,7 +1466,13 @@ class WaldurClient(object):
         )
 
     def marketplace_resource_create_order(
-        self, project_uuid, offering_uuid, plan_uuid=None, attributes=None, limits=None
+        self,
+        project_uuid,
+        offering_uuid,
+        plan_uuid=None,
+        attributes=None,
+        limits=None,
+        callback_url=None,
     ):
         attributes = attributes or {}
         limits = limits or {}
@@ -1482,6 +1488,9 @@ class WaldurClient(object):
             order_item["plan"] = self._build_resource_url(
                 self.Endpoints.MarketplacePlan, plan_uuid
             )
+
+        if callback_url:
+            order_item["callback_url"] = callback_url
 
         # TODO: replace with checkbox data from frontend
         order_item["accepting_terms_of_service"] = True
