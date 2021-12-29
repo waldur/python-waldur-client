@@ -1501,16 +1501,24 @@ class WaldurClient(object):
         }
         return self._create_resource(self.Endpoints.MarketplaceOrder, payload=payload)
 
-    def marketplace_resource_update_limits_order(self, resource_uuid, limits):
+    def marketplace_resource_update_limits_order(
+        self, resource_uuid, limits, callback_url=None
+    ):
         payload = {"limits": limits}
+        if callback_url:
+            payload["callback_url"] = callback_url
         url = self._build_resource_url(
             self.Endpoints.MarketplaceResources, resource_uuid, action="update_limits"
         )
         return self._post(url, valid_states=[200], json=payload)["order_uuid"]
 
-    def marketplace_resource_terminate_order(self, resource_uuid, options=None):
+    def marketplace_resource_terminate_order(
+        self, resource_uuid, options=None, callback_url=None
+    ):
         if options:
             options = {"attributes": options}
+        if callback_url:
+            options["callback_url"] = callback_url
         url = self._build_resource_url(
             self.Endpoints.MarketplaceResources, resource_uuid, action="terminate"
         )
