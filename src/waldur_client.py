@@ -1518,6 +1518,8 @@ class WaldurClient(object):
         if options:
             options = {"attributes": options}
         if callback_url:
+            if not options:
+                options = {}
             options["callback_url"] = callback_url
         url = self._build_resource_url(
             self.Endpoints.MarketplaceResources, resource_uuid, action="terminate"
