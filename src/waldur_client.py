@@ -2,7 +2,7 @@ import dataclasses
 import time
 from enum import Enum
 from typing import List, Optional
-from urllib.parse import urlencode, urljoin
+from urllib.parse import urljoin
 from uuid import UUID
 
 import requests
@@ -784,14 +784,6 @@ class WaldurClient(object):
         if wait:
             self._wait_for_resource(self.Endpoints.Instance, uuid, interval, timeout)
 
-    def delete_instance(self, uuid, delete_volumes=True, release_floating_ips=True):
-        base_url = self._build_resource_url(self.Endpoints.Instance, uuid)
-        params = dict(
-            delete_volumes=delete_volumes, release_floating_ips=release_floating_ips
-        )
-        url = base_url + "?" + urlencode(params)
-        return self._delete_resource_by_url(url)
-
     def update_instance_security_groups(
         self,
         instance_uuid,
@@ -840,9 +832,6 @@ class WaldurClient(object):
         }
         uuid = volume["uuid"]
         return self._update_resource(self.Endpoints.Volume, uuid, payload)
-
-    def delete_volume(self, uuid):
-        return self._delete_resource(self.Endpoints.Volume, uuid)
 
     def detach_volume(self, uuid, wait=True, interval=10, timeout=600):
         """

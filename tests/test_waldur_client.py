@@ -247,46 +247,6 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
         return json.loads(post_request.body.decode("utf-8"))
 
 
-class InstanceDeleteTest(BaseWaldurClientTest):
-    def setUp(self):
-        super(InstanceDeleteTest, self).setUp()
-        self.expected_url = (
-            "http://example.com:8000/api/openstacktenant-instances/"
-            "6b6e60870ad64085aadcdcbc1fd84a7e/?"
-            "delete_volumes=True&release_floating_ips=True"
-        )
-
-    @responses.activate
-    def test_deletion_parameters_are_passed_as_query_parameters(self):
-        responses.add(
-            responses.DELETE,
-            self.expected_url,
-            status=204,
-            json={"details": "Instance has been deleted."},
-        )
-        self.client.delete_instance("6b6e60870ad64085aadcdcbc1fd84a7e")
-        expected = {
-            "delete_volumes": ["True"],
-            "release_floating_ips": ["True"],
-        }
-        request = urlparse(responses.calls[0].request.url)
-        self.assertEqual(expected, parse_qs(request.query))
-
-    @responses.activate
-    def test_error_is_raised_if_invalid_status_code_is_returned(self):
-        responses.add(
-            responses.DELETE,
-            self.expected_url,
-            status=400,
-            json={"details": "Instance has invalid state."},
-        )
-        self.assertRaises(
-            WaldurClientException,
-            self.client.delete_instance,
-            "6b6e60870ad64085aadcdcbc1fd84a7e",
-        )
-
-
 class InstanceDeleteViaMarketplaceTest(BaseWaldurClientTest):
     def setUp(self):
         super(InstanceDeleteViaMarketplaceTest, self).setUp()
@@ -329,14 +289,6 @@ class InstanceDeleteViaMarketplaceTest(BaseWaldurClientTest):
                 if c.request.method == "POST"
             ][0],
             {"attributes": {"release_floating_ips": False}},
-        )
-
-    @responses.activate
-    def test_error_is_raised_if_invalid_status_code_is_returned(self):
-        self.assertRaises(
-            WaldurClientException,
-            self.client.delete_instance,
-            "6b6e60870ad64085aadcdcbc1fd84a7e",
         )
 
 
