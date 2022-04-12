@@ -107,6 +107,7 @@ class WaldurClient(object):
         MarketplacePlan = "marketplace-plans"
         MarketplaceResources = "marketplace-resources"
         MarketplaceStats = "marketplace-stats"
+        MarketplaceSlurm = "marketplace-slurm"
         OfferingPermissions = "marketplace-offering-permissions"
         OfferingUsers = "marketplace-offering-users"
         PaymentProfiles = "payment-profiles"
@@ -117,6 +118,8 @@ class WaldurClient(object):
         RemoteEduteams = "remote-eduteams"
         SecurityGroup = "openstacktenant-security-groups"
         ServiceProviders = "marketplace-service-providers"
+        SlurmAllocations = "slurm-allocation"
+        SlurmAssociations = "slurm-association"
         Snapshot = "openstacktenant-snapshots"
         SshKey = "keys"
         Subnet = "openstacktenant-subnets"
@@ -1755,12 +1758,11 @@ class WaldurClient(object):
         }
         return self._post(endpoint, valid_states=[201], json=payload)
 
-    def list_remote_offering_users(self, filters):
+    def list_remote_offering_users(self, filters=None):
         return self._query_resource_list(self.Endpoints.OfferingUsers, filters)
 
-    def list_service_providers(self, filters):
-        endpoint = self._build_url(self.Endpoints.ServiceProviders)
-        return self._query_resource_list(endpoint, filters)
+    def list_service_providers(self, filters=None):
+        return self._query_resource_list(self.Endpoints.ServiceProviders, filters)
 
     def list_service_provider_users(self, service_provider_uuid):
         endpoint = self._build_resource_url(
@@ -1791,6 +1793,26 @@ class WaldurClient(object):
     def get_marketplace_stats(self, endpoint):
         endpoint = self._build_url(self.Endpoints.MarketplaceStats, endpoint)
         return self._make_request("get", endpoint, valid_states=[200])
+
+    def list_slurm_allocations(self, filters=None):
+        return self._query_resource_list(self.Endpoints.SlurmAllocations, filters)
+
+    def list_slurm_associations(self, filters=None):
+        return self._query_resource_list(self.Endpoints.SlurmAssociations, filters)
+
+    def create_slurm_association(self, allocation_uuid: str, username: str):
+        url = self._build_resource_url(
+            self.Endpoints.MarketplaceSlurm, allocation_uuid, "create_association"
+        )
+        payload = {"username": username}
+        return self._post(url, valid_states=[200, 201], json=payload)
+
+    def delete_slurm_association(self, allocation_uuid: str, username: str):
+        url = self._build_resource_url(
+            self.Endpoints.MarketplaceSlurm, allocation_uuid, "delete_association"
+        )
+        payload = {"username": username}
+        return self._post(url, valid_states=[200], json=payload)
 
 
 def waldur_full_argument_spec(**kwargs):
