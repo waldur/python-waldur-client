@@ -96,6 +96,7 @@ class WaldurClient(object):
         Customers = "customers"
         Flavor = "openstacktenant-flavors"
         FloatingIP = "openstacktenant-floating-ips"
+        FreeIPAProfiles = "freeipa-profiles"
         Image = "openstacktenant-images"
         Instance = "openstacktenant-instances"
         Invoice = "invoices"
@@ -364,9 +365,11 @@ class WaldurClient(object):
     def get_user(self, identifier):
         return self._get_resource(self.Endpoints.Users, identifier)
 
-    def list_users(self):
-        url = self._build_url(self.Endpoints.Users)
-        return self._get_all(url)
+    def list_users(self, filters=None):
+        return self._query_resource_list(self.Endpoints.Users, filters)
+
+    def list_freeipa_profiles(self, filters=None):
+        return self._query_resource_list(self.Endpoints.FreeIPAProfiles, filters)
 
     def count_users(self, **kwargs):
         url = self._build_url(self.Endpoints.Users)
