@@ -633,7 +633,10 @@ class WaldurClient(object):
                 raise ValidationError(
                     "You should specify project name if name is not UUID"
                 )
-            query = {"project_name": project, "name_exact": name}
+            if is_uuid(project):
+                query = {"project_uuid": project, "name_exact": name}
+            else:
+                query = {"project_name": project, "name_exact": name}
             return self._query_resource(endpoint, query)
 
     def get_instance(self, name, project=None):
