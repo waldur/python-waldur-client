@@ -1837,7 +1837,7 @@ class WaldurClient(object):
         ram_limit: int,
     ):
         if not is_uuid(marketplace_resource_uuid):
-            raise WaldurClientException(
+            raise ValidationError(
                 "The UUID of marketplace resource has unexpected format: %s"
                 % marketplace_resource_uuid
             )
@@ -1863,7 +1863,7 @@ class WaldurClient(object):
         user_uuid: str = None,
     ):
         if not is_uuid(marketplace_resource_uuid):
-            raise WaldurClientException(
+            raise ValidationError(
                 "The UUID of marketplace resource has unexpected format: %s"
                 % marketplace_resource_uuid
             )
@@ -1883,7 +1883,7 @@ class WaldurClient(object):
                 )
             payload["user"] = self._build_resource_url(self.Endpoints.Users, user_uuid)
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceSlurm, marketplace_resource_uuid, "set_limits"
+            self.Endpoints.MarketplaceSlurm, marketplace_resource_uuid, "set_usage"
         )
         return self._post(url, valid_states=[200], json=payload)
 
