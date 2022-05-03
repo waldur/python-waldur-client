@@ -121,6 +121,7 @@ class WaldurClient(object):
         ServiceProviders = "marketplace-service-providers"
         SlurmAllocations = "slurm-allocations"
         SlurmAssociations = "slurm-associations"
+        SlurmAllocationUserUsages = "slurm-allocation-user-usages"
         Snapshot = "openstacktenant-snapshots"
         SshKey = "keys"
         Subnet = "openstacktenant-subnets"
@@ -1886,6 +1887,11 @@ class WaldurClient(object):
             self.Endpoints.MarketplaceSlurm, marketplace_resource_uuid, "set_usage"
         )
         return self._post(url, valid_states=[200], json=payload)
+
+    def list_slurm_allocation_user_usage(self, filters=None):
+        return self._query_resource_list(
+            self.Endpoints.SlurmAllocationUserUsages, filters
+        )
 
 
 def waldur_full_argument_spec(**kwargs):
