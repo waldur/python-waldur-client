@@ -1806,6 +1806,13 @@ class WaldurClient(object):
         endpoint = self._build_url(self.Endpoints.MarketplaceStats, endpoint)
         return self._make_request("get", endpoint, valid_states=[200])
 
+    def get_slurm_allocation(self, uuid: str):
+        if not is_uuid(uuid):
+            raise ValidationError(
+                "The UUID of SLURM allocation has unexpected format: %s" % uuid
+            )
+        return self._get_resource(self.Endpoints.SlurmAllocations, uuid)
+
     def list_slurm_allocations(self, filters=None):
         return self._query_resource_list(self.Endpoints.SlurmAllocations, filters)
 
