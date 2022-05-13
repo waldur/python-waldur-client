@@ -1068,14 +1068,21 @@ class WaldurClient(object):
 
         return self._post(url, valid_states=[200])
 
-    def marketplace_order_item_set_state_erred(self, order_item_uuid: str):
+    def marketplace_order_item_set_state_erred(
+        self,
+        order_item_uuid: str,
+        error_message: str = "",
+        error_traceback: str = "",
+    ):
+        payload = {"error_message": error_message, "error_traceback": error_traceback}
+
         url = self._build_resource_url(
             self.Endpoints.MarketplaceOrderItem,
             order_item_uuid,
             action="set_state_erred",
         )
 
-        return self._post(url, valid_states=[200])
+        return self._post(url, json=payload, valid_states=[200])
 
     def _get_resource_from_creation_order(
         self,
