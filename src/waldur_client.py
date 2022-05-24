@@ -76,6 +76,16 @@ class ProjectRole(Enum):
     MEMBER = "member"
 
 
+class SlurmAllocationState(Enum):
+    CREATING = "creating"
+    UPDATE_SCHEDULED = "updating"
+    UPDATING = "deletion_scheduled"
+    DELETION_SCHEDULED = "update_scheduled"
+    DELETING = "deleting"
+    OK = "ok"
+    ERRED = "erred"
+
+
 class PaymentProfileType(Enum):
     FIXED_PRICE = "fixed_price"
     MONTHLY_INVOICES = "invoices"
@@ -1849,6 +1859,24 @@ class WaldurClient(object):
 
     def list_slurm_allocations(self, filters=None):
         return self._query_resource_list(self.Endpoints.SlurmAllocations, filters)
+
+    def set_slurm_allocation_state(
+        self, marketplace_resource_uuid: str, state: SlurmAllocationState
+    ):
+        url = self._build_resource_url(
+            self.Endpoints.MarketplaceSlurm, marketplace_resource_uuid, "set_state"
+        )
+        payload = {"state": state.value}
+        self._post(url, valid_states=[200], json=payload)
+
+    def set_slurm_allocation_backend_id(
+        self, marketplace_resource_uuid: str, backend_id: str
+    ):
+        url = self._build_resource_url(
+            self.Endpoints.MarketplaceSlurm, marketplace_resource_uuid, "set_backend_id"
+        )
+        payload = {"backend_id": backend_id}
+        self._post(url, valid_states=[200], json=payload)
 
     def list_slurm_associations(self, filters=None):
         return self._query_resource_list(self.Endpoints.SlurmAssociations, filters)
