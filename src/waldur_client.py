@@ -119,6 +119,7 @@ class WaldurClient(object):
         MarketplaceResources = "marketplace-resources"
         MarketplaceStats = "marketplace-stats"
         MarketplaceSlurm = "marketplace-slurm"
+        MarketplaceSlurmRemote = "marketplace-slurm-remote"
         OfferingPermissions = "marketplace-offering-permissions"
         OfferingUsers = "marketplace-offering-users"
         PaymentProfiles = "payment-profiles"
@@ -1864,7 +1865,9 @@ class WaldurClient(object):
         self, marketplace_resource_uuid: str, state: SlurmAllocationState
     ):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceSlurm, marketplace_resource_uuid, "set_state"
+            self.Endpoints.MarketplaceSlurmRemote,
+            marketplace_resource_uuid,
+            "set_state",
         )
         payload = {"state": state.value}
         self._post(url, valid_states=[200], json=payload)
@@ -1873,7 +1876,9 @@ class WaldurClient(object):
         self, marketplace_resource_uuid: str, backend_id: str
     ):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceSlurm, marketplace_resource_uuid, "set_backend_id"
+            self.Endpoints.MarketplaceSlurmRemote,
+            marketplace_resource_uuid,
+            "set_backend_id",
         )
         payload = {"backend_id": backend_id}
         self._post(url, valid_states=[200], json=payload)
@@ -1883,7 +1888,7 @@ class WaldurClient(object):
 
     def create_slurm_association(self, marketplace_resource_uuid: str, username: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceSlurm,
+            self.Endpoints.MarketplaceSlurmRemote,
             marketplace_resource_uuid,
             "create_association",
         )
@@ -1892,7 +1897,7 @@ class WaldurClient(object):
 
     def delete_slurm_association(self, marketplace_resource_uuid: str, username: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceSlurm,
+            self.Endpoints.MarketplaceSlurmRemote,
             marketplace_resource_uuid,
             "delete_association",
         )
@@ -1912,7 +1917,9 @@ class WaldurClient(object):
                 % marketplace_resource_uuid
             )
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceSlurm, marketplace_resource_uuid, "set_limits"
+            self.Endpoints.MarketplaceSlurmRemote,
+            marketplace_resource_uuid,
+            "set_limits",
         )
         payload = {
             "cpu_limit": cpu_limit,
@@ -1953,7 +1960,9 @@ class WaldurClient(object):
                 )
             payload["user"] = self._build_resource_url(self.Endpoints.Users, user_uuid)
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceSlurm, marketplace_resource_uuid, "set_usage"
+            self.Endpoints.MarketplaceSlurmRemote,
+            marketplace_resource_uuid,
+            "set_usage",
         )
         return self._post(url, valid_states=[200], json=payload)
 
