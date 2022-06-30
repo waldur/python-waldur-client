@@ -142,6 +142,7 @@ class WaldurClient(object):
         Users = "users"
         Volume = "openstacktenant-volumes"
         VolumeType = "openstacktenant-volume-types"
+        ServerGroup = "openstacktenant-server-groups"
 
     marketplaceScopeEndpoints = {
         "OpenStackTenant.Instance": Endpoints.Instance,
@@ -422,6 +423,9 @@ class WaldurClient(object):
         return self._get_property(
             self.Endpoints.SecurityGroup, identifier, settings_uuid
         )
+
+    def _get_server_group(self, identifier, settings_uuid):
+        return self._get_property(self.Endpoints.ServerGroup, identifier, settings_uuid)
 
     def _get_floating_ip(self, address):
         return self._query_resource(self.Endpoints.FloatingIP, {"address": address})
@@ -1200,6 +1204,7 @@ class WaldurClient(object):
         ssh_key=None,
         data_volume_size=None,
         security_groups=None,
+        server_group=None,
         tags=None,
         user_data=None,
         check_mode=False,
@@ -1228,6 +1233,7 @@ class WaldurClient(object):
             No data volume is going to be created if empty.
         :param data_volume_type: UUID or name of data volume type.
         :param security_groups: list of security groups to add to the instance.
+        :param server_group: A server group to add to the instance.
         :param tags: list of tags to add to the instance.
         :param user_data: additional data that will be added to the instance.
         :return: an instance as a dictionary.
@@ -1276,6 +1282,9 @@ class WaldurClient(object):
         if data_volume_type:
             volume_type = self._get_volume_type(data_volume_type, settings_uuid)
             attributes.update({"data_volume_type": volume_type["url"]})
+        if server_group:
+            server_group = self._get_resource(self.Endpoints.ServerGroup, server_group)
+            attributes.update({"server_group": server_group["url"]})
 
         resource_uuid = self._create_scope_via_marketplace(
             offering["uuid"],
