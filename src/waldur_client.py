@@ -1916,9 +1916,7 @@ class WaldurClient(object):
     def set_slurm_allocation_limits(
         self,
         marketplace_resource_uuid: str,
-        cpu_limit: int,
-        gpu_limit: int,
-        ram_limit: int,
+        limits: dict,
     ):
         if not is_uuid(marketplace_resource_uuid):
             raise ValidationError(
@@ -1930,50 +1928,7 @@ class WaldurClient(object):
             marketplace_resource_uuid,
             "set_limits",
         )
-        payload = {
-            "cpu_limit": cpu_limit,
-            "gpu_limit": gpu_limit,
-            "ram_limit": ram_limit,
-        }
-        return self._post(url, valid_states=[200], json=payload)
-
-    def set_slurm_allocation_usage(
-        self,
-        marketplace_resource_uuid: str,
-        username: str,
-        month: int,
-        year: int,
-        cpu_usage: int,
-        gpu_usage: int,
-        ram_usage: int,
-        user_uuid: str = None,
-    ):
-        if not is_uuid(marketplace_resource_uuid):
-            raise ValidationError(
-                "The UUID of marketplace resource has unexpected format: %s"
-                % marketplace_resource_uuid
-            )
-        payload = {
-            "cpu_usage": cpu_usage,
-            "gpu_usage": gpu_usage,
-            "ram_usage": ram_usage,
-            "month": month,
-            "year": year,
-            "username": username,
-        }
-
-        if user_uuid is not None:
-            if not is_uuid(user_uuid):
-                raise WaldurClientException(
-                    "The UUID of user has unexpected format: %s" % user_uuid
-                )
-            payload["user"] = self._build_resource_url(self.Endpoints.Users, user_uuid)
-        url = self._build_resource_url(
-            self.Endpoints.MarketplaceSlurmRemote,
-            marketplace_resource_uuid,
-            "set_usage",
-        )
-        return self._post(url, valid_states=[200], json=payload)
+        return self._post(url, valid_states=[200], json=limits)
 
     def list_slurm_allocation_user_usage(self, filters=None):
         return self._query_resource_list(
