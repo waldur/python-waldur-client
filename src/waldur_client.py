@@ -64,6 +64,37 @@ class ResourceReportRecord:
     body: str
 
 
+class OfferingComponentBillingTypes:
+    FIXED = "fixed"
+    USAGE = "usage"
+    ONE_TIME = "one"
+    ON_PLAN_SWITCH = "few"
+    LIMIT = "limit"
+
+
+class OfferingComponentLimitPeriod:
+    MONTH = "month"
+    ANNUAL = "annual"
+    TOTAL = "total"
+
+
+@dataclasses.dataclass
+class OfferingComponent:
+    # The required fields are billing_type, type, name and measured_unit only
+    billing_type: str
+    type: str
+    name: str
+    measured_unit: str
+    description: str = ""
+    limit_period: str = ""
+    limit_amount: int = None
+    article_code: str = ""
+    max_value: int = None
+    min_value: int = None
+    is_boolean: bool = None
+    default_limit: int = None
+
+
 class ResourceState(Enum):
     OK = "ok"
     ERRED = "erred"
@@ -1934,6 +1965,20 @@ class WaldurClient(object):
         return self._query_resource_list(
             self.Endpoints.SlurmAllocationUserUsages, filters
         )
+
+    def update_offering_components(
+        self, offering_uuid: str, components: List[OfferingComponent]
+    ):
+        url = self._build_resource_url(
+            self.Endpoints.MarketplaceOffering, offering_uuid, "update_components"
+        )
+        components_json = [
+            {
+                k: v for k, v in dataclasses.asdict(component).items() if v
+            }  # Drop all keys with None or empty value
+            for component in components
+        ]
+        return self._post(url, valid_states=[200], json=components_json)
 
 
 def waldur_full_argument_spec(**kwargs):
