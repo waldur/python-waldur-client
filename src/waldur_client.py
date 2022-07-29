@@ -1,7 +1,7 @@
 import dataclasses
 import time
 from enum import Enum
-from typing import List, Optional, overload
+from typing import List, Optional
 from urllib.parse import urljoin
 from uuid import UUID
 
@@ -747,11 +747,9 @@ class WaldurClient(object):
             WaldurClient.Endpoints.MarketplaceResources, resource_uuid
         )
 
-    @overload
-    def list_marketplace_resources(self, filters=None):
+    def filter_marketplace_resources(self, filters=None):
         return self._query_resource_list(self.Endpoints.MarketplaceResources, filters)
 
-    @overload
     def list_marketplace_resources(
         self,
         provider_uuid: str = None,
