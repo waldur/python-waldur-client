@@ -174,6 +174,7 @@ class WaldurClient(object):
         Volume = "openstacktenant-volumes"
         VolumeType = "openstacktenant-volume-types"
         ServerGroup = "openstacktenant-server-groups"
+        SupportIssues = "support-issues"
 
     marketplaceScopeEndpoints = {
         "OpenStackTenant.Instance": Endpoints.Instance,
@@ -1977,6 +1978,21 @@ class WaldurClient(object):
             for component in components
         ]
         return self._post(url, valid_states=[200], json=components_json)
+
+    def create_support_issue(
+        self, summary, issue_type, caller_url, remote_id, **kwargs
+    ):
+        payload = {
+            "summary": summary,
+            "type": issue_type,
+            "caller": caller_url,
+            "remote_id": remote_id,
+        }
+        payload.update(kwargs)
+        return self._create_resource(self.Endpoints.SupportIssues, payload=payload)
+
+    def list_support_issues(self, filters=None):
+        return self._query_resource_list(self.Endpoints.SupportIssues, filters)
 
 
 def waldur_full_argument_spec(**kwargs):
