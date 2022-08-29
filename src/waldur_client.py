@@ -214,7 +214,11 @@ class WaldurClient(object):
             reason = response.json()
         except ValueError:
             reason = "Unable to parse JSON"
-        details = "Status: %s. Reason: %s." % (response.status_code, reason)
+        details = "URL %s. Status: %s. Reason: %s." % (
+            response.url,
+            response.status_code,
+            reason,
+        )
         return "Server refuses to communicate. %s" % details
 
     def _make_request(self, method, url, valid_states, retry_count=3, **kwargs):
