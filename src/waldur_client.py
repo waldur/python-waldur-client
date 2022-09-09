@@ -175,6 +175,7 @@ class WaldurClient(object):
         VolumeType = "openstacktenant-volume-types"
         ServerGroup = "openstacktenant-server-groups"
         SupportIssues = "support-issues"
+        SupportComments = "support-comments"
 
     marketplaceScopeEndpoints = {
         "OpenStackTenant.Instance": Endpoints.Instance,
@@ -1997,6 +1998,9 @@ class WaldurClient(object):
 
     def list_support_issues(self, filters=None):
         return self._query_resource_list(self.Endpoints.SupportIssues, filters)
+
+    def list_support_comments(self, filters=None):
+        return self._query_resource_list(self.Endpoints.SupportComments, filters)
 
 
 def waldur_full_argument_spec(**kwargs):
