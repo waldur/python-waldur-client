@@ -2002,6 +2002,16 @@ class WaldurClient(object):
     def list_support_comments(self, filters=None):
         return self._query_resource_list(self.Endpoints.SupportComments, filters)
 
+    def create_support_comments(self, issue_uuid, description, remote_id, **kwargs):
+        payload = {
+            "description": description,
+            "remote_id": remote_id,
+        }
+        payload.update(kwargs)
+        return self._create_resource(
+            self.Endpoints.SupportIssues + f"/{issue_uuid}/comment/", payload=payload
+        )
+
 
 def waldur_full_argument_spec(**kwargs):
     spec = dict(
