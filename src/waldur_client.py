@@ -9,9 +9,9 @@ from uuid import UUID
 import requests
 from urllib3.exceptions import InsecureRequestWarning
 
-verify_ssl = os.environ.get("REQUESTS_VERIFY_SSL")
+verify_ssl = os.environ.get("REQUESTS_VERIFY_SSL", "true")
 
-verify_ssl = verify_ssl is None or verify_ssl.lower() not in ["false", "no", "0"]
+verify_ssl = verify_ssl.lower() not in ["false", "no", "0"]
 
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
