@@ -222,10 +222,13 @@ class WaldurClient(object):
         return self._build_url("/".join(parts))
 
     def _parse_error(self, response):
+        reason = getattr(response, "reason")
+
         try:
-            reason = response.json()
+            reason = "%s. %s" % (reason, response.json())
         except ValueError:
-            reason = "Unable to parse JSON"
+            pass
+
         details = "URL %s. Status: %s. Reason: %s." % (
             response.url,
             response.status_code,
