@@ -15,9 +15,6 @@ verify_ssl = verify_ssl.lower() not in ["false", "no", "0"]
 
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
-session = requests.Session()
-session.verify = verify_ssl
-
 
 def is_uuid(value):
     try:
@@ -242,7 +239,7 @@ class WaldurClient(object):
                 "Reached a limit of retries for the operation: %s %s" % (method, url)
             )
 
-        params = dict(headers=self.headers)
+        params = dict(headers=self.headers, verify=verify_ssl)
         params.update(kwargs)
 
         try:
