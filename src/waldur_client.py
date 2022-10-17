@@ -264,7 +264,7 @@ class WaldurClient(object):
         return ""
 
     def _get_all(self, url, **kwargs):
-        params = dict(headers=self.headers)
+        params = dict(headers=self.headers, verify=verify_ssl)
         params.update(kwargs)
 
         try:
