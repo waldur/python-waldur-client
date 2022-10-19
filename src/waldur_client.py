@@ -151,7 +151,7 @@ class WaldurClient(object):
         Invoice = "invoices"
         InvoiceItems = "invoice-items"
         MarketplaceCategories = "marketplace-categories"
-        MarketplaceOffering = "marketplace-offerings"
+        MarketplaceOffering = "marketplace-public-offerings"
         MarketplaceOrder = "marketplace-orders"
         MarketplaceOrderItem = "marketplace-order-items"
         MarketplacePlan = "marketplace-plans"

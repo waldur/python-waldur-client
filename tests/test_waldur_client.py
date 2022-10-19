@@ -126,7 +126,9 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
         offering["scope_uuid"] = "settings_uuid"
         offering["type"] = "OpenStackTenant.Instance"
         responses.add(
-            responses.GET, self._get_url("marketplace-offerings"), json=[offering]
+            responses.GET,
+            self._get_url("marketplace-public-offerings"),
+            json=[offering],
         )
 
         self.order = {
@@ -166,7 +168,7 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
                             "security_groups": [{"url": "url_security_groups"}],
                         },
                         "offering": self._get_url(
-                            "marketplace-offerings/uuid_offering"
+                            "marketplace-public-offerings/uuid_offering"
                         ),
                         "limits": {},
                     }
