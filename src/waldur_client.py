@@ -151,10 +151,11 @@ class WaldurClient(object):
         Invoice = "invoices"
         InvoiceItems = "invoice-items"
         MarketplaceCategories = "marketplace-categories"
-        MarketplaceOffering = "marketplace-public-offerings"
+        MarketplaceOffering = "marketplace-offerings"
         MarketplaceOrder = "marketplace-orders"
         MarketplaceOrderItem = "marketplace-order-items"
         MarketplacePlan = "marketplace-plans"
+        MarketplacePublicOffering = "marketplace-public-offerings"
         MarketplaceResources = "marketplace-resources"
         MarketplaceStats = "marketplace-stats"
         MarketplaceSlurm = "marketplace-slurm"
@@ -1034,7 +1035,9 @@ class WaldurClient(object):
         :return: marketplace offering.
         """
         if is_uuid(offering):
-            return self._get_resource(self.Endpoints.MarketplaceOffering, offering)
+            return self._get_resource(
+                self.Endpoints.MarketplacePublicOffering, offering
+            )
         elif project:
             if is_uuid(project):
                 project_uuid = project
@@ -1043,7 +1046,7 @@ class WaldurClient(object):
                 project_uuid = project["uuid"]
 
             return self._get_resource(
-                self.Endpoints.MarketplaceOffering,
+                self.Endpoints.MarketplacePublicOffering,
                 offering,
                 {"project_uuid": project_uuid, "state": ["Active", "Paused"]},
             )
