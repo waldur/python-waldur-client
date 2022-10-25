@@ -168,7 +168,7 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
                             "security_groups": [{"url": "url_security_groups"}],
                         },
                         "offering": self._get_url(
-                            "marketplace-public-offerings/uuid_offering"
+                            "marketplace-offerings/uuid_offering"
                         ),
                         "limits": {},
                     }
