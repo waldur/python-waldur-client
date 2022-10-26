@@ -826,6 +826,11 @@ class WaldurClient(object):
         )
         return self._get(url, valid_states=[200])
 
+    def update_marketplace_resource(self, resource_uuid: str, **kwargs):
+        return self._patch_resource(
+            self.Endpoints.MarketplaceResources, resource_uuid, kwargs
+        )
+
     def get_instance_via_marketplace(self, name, project=None):
         """Get an openstack instance via marketplace.
 
