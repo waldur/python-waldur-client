@@ -141,6 +141,7 @@ class InvoiceState(Enum):
 class WaldurClient(object):
     class Endpoints(object):
         ComponentUsage = "marketplace-component-usages"
+        Configuration = "configuration"
         CustomerPermissions = "customer-permissions"
         Customers = "customers"
         Flavor = "openstacktenant-flavors"
@@ -423,6 +424,9 @@ class WaldurClient(object):
 
     def _get_project(self, identifier):
         return self._get_resource(self.Endpoints.Project, identifier)
+
+    def get_configuration(self):
+        return self._query_resource_list(self.Endpoints.Configuration, {})
 
     def get_user(self, identifier):
         return self._get_resource(self.Endpoints.Users, identifier)
