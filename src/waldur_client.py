@@ -1465,6 +1465,9 @@ class WaldurClient(object):
 
             return resource, True
 
+    def get_customer(self, identifier, filters=None):
+        return self._get_resource(self.Endpoints.Customers, identifier, filters)
+
     def list_customers(self, filters=None):
         return self._query_resource_list(self.Endpoints.Customers, filters)
 
