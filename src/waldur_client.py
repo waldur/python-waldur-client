@@ -152,7 +152,7 @@ class WaldurClient(object):
         Invoice = "invoices"
         InvoiceItems = "invoice-items"
         MarketplaceCategories = "marketplace-categories"
-        MarketplaceOffering = "marketplace-offerings"
+        MarketplaceProviderOffering = "marketplace-provider-offerings"
         MarketplaceOrder = "marketplace-orders"
         MarketplaceOrderItem = "marketplace-order-items"
         MarketplacePlan = "marketplace-plans"
@@ -1460,7 +1460,7 @@ class WaldurClient(object):
 
         else:
             resource = self._create_resource(
-                self.Endpoints.MarketplaceOffering, payload=params
+                self.Endpoints.MarketplaceProviderOffering, payload=params
             )
 
             return resource, True
@@ -1576,12 +1576,24 @@ class WaldurClient(object):
             return self._delete_resource(self.Endpoints.Project, project)
         return self._delete_resource_by_url(project)
 
-    def list_marketplace_offerings(self, filters=None):
-        return self._query_resource_list(self.Endpoints.MarketplaceOffering, filters)
+    def list_marketplace_provider_offerings(self, filters=None):
+        return self._query_resource_list(
+            self.Endpoints.MarketplaceProviderOffering, filters
+        )
 
-    def get_marketplace_offering(self, offering_uuid):
+    def list_marketplace_public_offerings(self, filters=None):
+        return self._query_resource_list(
+            self.Endpoints.MarketplacePublicOffering, filters
+        )
+
+    def get_marketplace_provider_offering(self, offering_uuid):
         return self._query_resource_by_uuid(
-            self.Endpoints.MarketplaceOffering, offering_uuid
+            self.Endpoints.MarketplaceProviderOffering, offering_uuid
+        )
+
+    def get_marketplace_public_offering(self, offering_uuid):
+        return self._query_resource_by_uuid(
+            self.Endpoints.MarketplacePublicOffering, offering_uuid
         )
 
     def marketplace_resource_create_order(
@@ -1597,7 +1609,7 @@ class WaldurClient(object):
         limits = limits or {}
         order_item = {
             "offering": self._build_resource_url(
-                self.Endpoints.MarketplaceOffering, offering_uuid
+                self.Endpoints.MarketplacePublicOffering, offering_uuid
             ),
             "attributes": attributes,
             "limits": limits,
@@ -1816,7 +1828,7 @@ class WaldurClient(object):
             {
                 "user": self._build_resource_url(self.Endpoints.Users, user_uuid),
                 "offering": self._build_resource_url(
-                    self.Endpoints.MarketplaceOffering, offering_uuid
+                    self.Endpoints.MarketplaceProviderOffering, offering_uuid
                 ),
             },
         )
@@ -1855,7 +1867,7 @@ class WaldurClient(object):
     ):
         if is_uuid(offering):
             offering = self._build_resource_url(
-                self.Endpoints.MarketplaceOffering, offering
+                self.Endpoints.MarketplaceProviderOffering, offering
             )
 
         if is_uuid(user):
@@ -2000,7 +2012,9 @@ class WaldurClient(object):
         self, offering_uuid: str, components: List[OfferingComponent]
     ):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOffering, offering_uuid, "update_components"
+            self.Endpoints.MarketplaceProviderOffering,
+            offering_uuid,
+            "update_components",
         )
         components_json = [
             {
