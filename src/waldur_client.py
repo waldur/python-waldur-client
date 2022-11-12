@@ -155,7 +155,8 @@ class WaldurClient(object):
         MarketplaceProviderOffering = "marketplace-provider-offerings"
         MarketplaceOrder = "marketplace-orders"
         MarketplaceOrderItem = "marketplace-order-items"
-        MarketplacePlan = "marketplace-plans"
+        MarketplaceProviderPlan = "marketplace-plans"
+        MarketplacePublicPlan = "marketplace-public-plans"
         MarketplacePublicOffering = "marketplace-public-offerings"
         MarketplaceResources = "marketplace-resources"
         MarketplaceStats = "marketplace-stats"
@@ -1063,7 +1064,7 @@ class WaldurClient(object):
             return
 
     def _get_plan(self, identifier):
-        return self._get_resource(self.Endpoints.MarketplacePlan, identifier)
+        return self._get_resource(self.Endpoints.MarketplacePublicPlan, identifier)
 
     def create_marketplace_order(
         self, project, offering, plan=None, attributes=None, limits=None
@@ -1617,7 +1618,7 @@ class WaldurClient(object):
 
         if plan_uuid:
             order_item["plan"] = self._build_resource_url(
-                self.Endpoints.MarketplacePlan, plan_uuid
+                self.Endpoints.MarketplacePublicPlan, plan_uuid
             )
 
         if callback_url:
