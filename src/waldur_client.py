@@ -586,6 +586,10 @@ class WaldurClient(object):
         endpoint = self._build_url(self.Endpoints.Tenant)
         return self._query_resource_list(endpoint, filters)
 
+    def list_service_settings(self, filters=None):
+        endpoint = self._build_url(self.Endpoints.Provider)
+        return self._query_resource_list(endpoint, filters)
+
     def create_security_group(
         self,
         tenant,
