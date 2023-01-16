@@ -149,6 +149,7 @@ class WaldurClient(object):
         FreeIPAProfiles = "freeipa-profiles"
         Image = "openstacktenant-images"
         Instance = "openstacktenant-instances"
+        Network = "openstack-networks"
         Invoice = "invoices"
         InvoiceItems = "invoice-items"
         MarketplaceCategories = "marketplace-categories"
@@ -584,6 +585,10 @@ class WaldurClient(object):
 
     def list_tenants(self, filters=None):
         endpoint = self._build_url(self.Endpoints.Tenant)
+        return self._query_resource_list(endpoint, filters)
+
+    def list_networks(self, filters=None):
+        endpoint = self._build_url(self.Endpoints.Network)
         return self._query_resource_list(endpoint, filters)
 
     def list_service_settings(self, filters=None):
