@@ -268,7 +268,9 @@ class WaldurClient(object):
         return ""
 
     def _get_all(self, url, **kwargs):
-        params = dict(headers=self.headers, verify=verify_ssl)
+        auth_params = dict(headers=self.headers, verify=verify_ssl)
+        params = dict()
+        params.update(auth_params)
         params.update(kwargs)
 
         try:
@@ -288,7 +290,9 @@ class WaldurClient(object):
             else:  # First page case
                 next_url = response.headers["Link"].split(", ")[1].split("; ")[0][1:-1]
             try:
-                response = requests.get(next_url, **params)
+                # filters are already included in the next_url so we only
+                # need auth_params
+                response = requests.get(next_url, **auth_params)
             except requests.exceptions.RequestException as error:
                 raise WaldurClientException(str(error))
 
