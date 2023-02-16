@@ -163,6 +163,7 @@ class WaldurClient(object):
         MarketplaceStats = "marketplace-stats"
         MarketplaceSlurm = "marketplace-slurm"
         MarketplaceSlurmRemote = "marketplace-slurm-remote"
+        MarketplaceRobotAccount = "marketplace-robot-accounts"
         OfferingPermissions = "marketplace-offering-permissions"
         OfferingUsers = "marketplace-offering-users"
         PaymentProfiles = "payment-profiles"
@@ -2064,6 +2065,36 @@ class WaldurClient(object):
         payload.update(kwargs)
         return self._create_resource(
             self.Endpoints.SupportIssues + f"/{issue_uuid}/comment/", payload=payload
+        )
+
+    def list_robot_account(self, filters=None):
+        return self._query_resource_list(
+            self.Endpoints.MarketplaceRobotAccount, filters
+        )
+
+    def create_robot_account(self, resource, type, users=[], username="", keys=[]):
+        return self._create_resource(
+            self.Endpoints.MarketplaceRobotAccount,
+            payload={
+                "resource": resource,
+                "type": type,
+                "username": username,
+                "users": users,
+                "keys": keys,
+            },
+        )
+
+    def update_robot_account(self, account_uuid, payload):
+        return self._update_resource(
+            self.Endpoints.MarketplaceRobotAccount,
+            account_uuid,
+            payload,
+        )
+
+    def delete_robot_account(self, account_uuid):
+        return self._delete_resource(
+            self.Endpoints.MarketplaceRobotAccount,
+            account_uuid,
         )
 
 
