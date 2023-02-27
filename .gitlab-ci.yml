@@ -8,8 +8,24 @@ include:
   - project: "waldur/waldur-pipelines"
     file: "/templates/release/python-module-release.yml"
 
-Run linters:
-  image: "registry.hpc.ut.ee/mirror/library/python:3.8"
+.Run tests template:
+  stage: test
+  interruptible: true
+  rules:
+    # Skip tests if specified
+    - if: '$SKIP_TESTS == "true" || $SKIP_TESTS == "yes"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    # If tagged release
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+    # If event is related to a created merge request
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  script:
+    - pip install -e .[tests]
+    - python setup.py test
+
+.Run linters template:
   stage: test
   interruptible: true
   rules:
@@ -26,20 +42,54 @@ Run linters:
     - pip install pre-commit
     - pre-commit run --all
 
-Run tests:
+Run python v3.8 linters:
   image: "registry.hpc.ut.ee/mirror/library/python:3.8"
-  stage: test
-  interruptible: true
-  rules:
-    # Skip tests if specified
-    - if: '$SKIP_TESTS == "true" || $SKIP_TESTS == "yes"'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-    - if: '$CI_COMMIT_BRANCH == "master"'
-    # If tagged release
-    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
-    # If event is related to a created merge request
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  script:
-    - pip install -e .[tests]
-    - python setup.py test
+  extends: .Run linters template
+  before_script:
+    - |
+      echo 'default_language_version:' >> .pre-commit-config.yaml
+      echo '  python: python3.8' >> .pre-commit-config.yaml
+    - cat .pre-commit-config.yaml
+
+Run python v3.9 linters:
+  image: "registry.hpc.ut.ee/mirror/library/python:3.9"
+  extends: .Run linters template
+  before_script:
+    - |
+      echo 'default_language_version:' >> .pre-commit-config.yaml
+      echo '  python: python3.9' >> .pre-commit-config.yaml
+    - cat .pre-commit-config.yaml
+
+Run python v3.10 linters:
+  image: "registry.hpc.ut.ee/mirror/library/python:3.10"
+  extends: .Run linters template
+  before_script:
+    - |
+      echo 'default_language_version:' >> .pre-commit-config.yaml
+      echo '  python: python3.10' >> .pre-commit-config.yaml
+    - cat .pre-commit-config.yaml
+
+Run python v3.11 linters:
+  image: "registry.hpc.ut.ee/mirror/library/python:3.11"
+  extends: .Run linters template
+  before_script:
+    - |
+      echo 'default_language_version:' >> .pre-commit-config.yaml
+      echo '  python: python3.11' >> .pre-commit-config.yaml
+    - cat .pre-commit-config.yaml
+
+Run python v3.8 tests:
+  image: "registry.hpc.ut.ee/mirror/library/python:3.8"
+  extends: .Run tests template
+
+Run python v3.9 tests:
+  image: "registry.hpc.ut.ee/mirror/library/python:3.9"
+  extends: .Run tests template
+
+Run python v3.10 tests:
+  image: "registry.hpc.ut.ee/mirror/library/python:3.10"
+  extends: .Run tests template
+
+Run python v3.11 tests:
+  image: "registry.hpc.ut.ee/mirror/library/python:3.11"
+  extends: .Run tests template
