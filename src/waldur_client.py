@@ -238,10 +238,19 @@ class WaldurClient(object):
         )
         return "Server refuses to communicate. %s" % details
 
-    def _make_request(self, method, url, valid_states, retry_count=3, **kwargs):
+    def _make_request(
+        self,
+        method,
+        url,
+        valid_states,
+        retry_count=3,
+        prev_response_data=None,
+        **kwargs,
+    ):
         if retry_count == 0:
             raise WaldurClientException(
-                "Reached a limit of retries for the operation: %s %s" % (method, url)
+                "Reached a limit of retries for the operation: %s %s, body: %s"
+                % (method, url, prev_response_data)
             )
 
         params = dict(headers=self.headers, verify=verify_ssl)
@@ -257,7 +266,12 @@ class WaldurClient(object):
             if response.status_code == 409:
                 time.sleep(2)  # wait for things to calm down
                 return self._make_request(
-                    method, url, valid_states, retry_count - 1, **kwargs
+                    method,
+                    url,
+                    valid_states,
+                    retry_count - 1,
+                    prev_response_data=response.text,
+                    **kwargs,
                 )
             error = self._parse_error(response)
             raise WaldurClientException(error)
