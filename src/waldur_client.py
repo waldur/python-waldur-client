@@ -2087,24 +2087,24 @@ class WaldurClient(object):
         )
 
     def create_robot_account(self, resource, type, users=[], username="", keys=[]):
-       	params = {
+        params = {
             "resource": resource,
             "type": type,
             "users": users,
-       	    "username": username,
+            "username": username,
             "keys": keys,
         }
         if is_uuid(resource):
             params["resource"] = self._build_url(
-               	self.Endpoints.MarketplaceResources + "/" + resource
-       	    )
+                self.Endpoints.MarketplaceResources + "/" + resource
+            )
         if users:
             for idx, user in enumerate(users):
-               	if is_uuid(user):
+                if is_uuid(user):
                     params["users"][idx] = self._build_url(
-                    self.Endpoints.Users + "/" + user
-            )
-	return self._create_resource(
+                        self.Endpoints.Users + "/" + user
+                    )
+        return self._create_resource(
             self.Endpoints.MarketplaceRobotAccount,
             payload=params,
         )
