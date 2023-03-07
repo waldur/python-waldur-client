@@ -2087,15 +2087,26 @@ class WaldurClient(object):
         )
 
     def create_robot_account(self, resource, type, users=[], username="", keys=[]):
-        return self._create_resource(
+       	params = {
+            "resource": resource,
+            "type": type,
+            "users": users,
+       	    "username": username,
+            "keys": keys,
+        }
+        if is_uuid(resource):
+            params["resource"] = self._build_url(
+               	self.Endpoints.MarketplaceResources + "/" + resource
+       	    )
+        if users:
+            for idx, user in enumerate(users):
+               	if is_uuid(user):
+                    params["users"][idx] = self._build_url(
+                    self.Endpoints.Users + "/" + user
+            )
+	return self._create_resource(
             self.Endpoints.MarketplaceRobotAccount,
-            payload={
-                "resource": resource,
-                "type": type,
-                "username": username,
-                "users": users,
-                "keys": keys,
-            },
+            payload=params,
         )
 
     def update_robot_account(self, account_uuid, payload):
