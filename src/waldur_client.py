@@ -2110,7 +2110,7 @@ class WaldurClient(object):
         )
 
     def update_robot_account(self, account_uuid, payload):
-        return self._update_resource(
+        return self._patch_resource(
             self.Endpoints.MarketplaceRobotAccount,
             account_uuid,
             payload,
