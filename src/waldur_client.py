@@ -157,7 +157,6 @@ class WaldurClient(object):
         MarketplaceOrder = "marketplace-orders"
         MarketplaceOrderItem = "marketplace-order-items"
         MarketplaceProviderPlan = "marketplace-plans"
-        MarketplacePublicPlan = "marketplace-public-plans"
         MarketplacePublicOffering = "marketplace-public-offerings"
         MarketplaceResources = "marketplace-resources"
         MarketplaceStats = "marketplace-stats"
@@ -217,8 +216,14 @@ class WaldurClient(object):
             parts.append(action)
         return urljoin(self.api_url, self._ensure_trailing_slash("/".join(parts)))
 
-    def _build_resource_url(self, endpoint, uid, action=None):
-        parts = [endpoint, str(uid)]
+    def _build_resource_url(
+        self, endpoint, uid1, action=None, sub_endpoint=None, uid2=None
+    ):
+        parts = [endpoint, str(uid1)]
+
+        if sub_endpoint is not None and uid2 is not None:
+            parts.extend([sub_endpoint, str(uid2)])
+
         if action:
             parts.append(action)
         return self._build_url("/".join(parts))
@@ -859,6 +864,23 @@ class WaldurClient(object):
         )
         return self._get(url, valid_states=[200])
 
+    def marketplace_public_offering_get_plans(self, offering_uuid: str):
+        url = self._build_resource_url(
+            self.Endpoints.MarketplacePublicOffering, offering_uuid, action="plans"
+        )
+        return self._get(url, valid_states=[200])
+
+    def marketplace_public_offering_get_plan_details(
+        self, offering_uuid: str, plan_uuid: str
+    ):
+        url = self._build_resource_url(
+            self.Endpoints.MarketplacePublicOffering,
+            "plans",
+            offering_uuid,
+            plan_uuid,
+        )
+        return self._get(url, valid_states=[200])
+
     def update_marketplace_resource(self, resource_uuid: str, **kwargs):
         return self._patch_resource(
             self.Endpoints.MarketplaceResources, resource_uuid, kwargs
@@ -1091,8 +1113,10 @@ class WaldurClient(object):
         else:
             return
 
-    def _get_plan(self, identifier):
-        return self._get_resource(self.Endpoints.MarketplacePublicPlan, identifier)
+    def _get_plan(self, offering_identifier, plan_identifier):
+        return self.marketplace_public_offering_get_plan_details(
+            offering_identifier, plan_identifier
+        )
 
     def create_marketplace_order(
         self, project, offering, plan=None, attributes=None, limits=None
@@ -1108,7 +1132,7 @@ class WaldurClient(object):
         """
         project_uuid = self._get_project(project)["uuid"]
         offering_uuid = self._get_offering(offering, project)["uuid"]
-        plan_uuid = plan and self._get_plan(plan)["uuid"]
+        plan_uuid = plan and self._get_plan(offering_uuid, plan)["uuid"]
         return self.marketplace_resource_create_order(
             project_uuid, offering_uuid, plan_uuid, attributes, limits
         )
