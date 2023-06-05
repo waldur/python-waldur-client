@@ -1670,7 +1670,10 @@ class WaldurClient(object):
 
         if plan_uuid:
             order_item["plan"] = self._build_resource_url(
-                self.Endpoints.MarketplacePublicPlan, plan_uuid
+                self.Endpoints.MarketplacePublicOffering,
+                "plans",
+                offering_uuid,
+                plan_uuid,
             )
 
         if callback_url:
