@@ -875,9 +875,9 @@ class WaldurClient(object):
     ):
         url = self._build_resource_url(
             self.Endpoints.MarketplacePublicOffering,
-            "plans",
             offering_uuid,
-            plan_uuid,
+            sub_endpoint="plans",
+            uid2=plan_uuid,
         )
         return self._get(url, valid_states=[200])
 
