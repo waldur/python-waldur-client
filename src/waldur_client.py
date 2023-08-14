@@ -13,6 +13,8 @@ verify_ssl = os.environ.get("REQUESTS_VERIFY_SSL", "true")
 
 verify_ssl = verify_ssl.lower() not in ["false", "no", "0"]
 
+requests_timeout = int(os.environ.get("REQUESTS_TIMEOUT", 15))
+
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 
@@ -258,7 +260,7 @@ class WaldurClient(object):
                 % (method, url, prev_response_data)
             )
 
-        params = dict(headers=self.headers, verify=verify_ssl)
+        params = dict(headers=self.headers, verify=verify_ssl, timeout=requests_timeout)
         params.update(kwargs)
 
         try:
@@ -288,7 +290,9 @@ class WaldurClient(object):
         return ""
 
     def _get_all(self, url, **kwargs):
-        auth_params = dict(headers=self.headers, verify=verify_ssl)
+        auth_params = dict(
+            headers=self.headers, verify=verify_ssl, timeout=requests_timeout
+        )
         params = dict()
         params.update(auth_params)
         params.update(kwargs)
