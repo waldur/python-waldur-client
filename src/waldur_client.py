@@ -144,7 +144,6 @@ class WaldurClient(object):
     class Endpoints(object):
         ComponentUsage = "marketplace-component-usages"
         Configuration = "configuration"
-        CustomerPermissions = "customer-permissions"
         Customers = "customers"
         Flavor = "openstacktenant-flavors"
         FloatingIP = "openstacktenant-floating-ips"
@@ -169,7 +168,6 @@ class WaldurClient(object):
         OfferingUsers = "marketplace-offering-users"
         PaymentProfiles = "payment-profiles"
         Project = "projects"
-        ProjectPermissions = "project-permissions"
         ProjectTypes = "project-types"
         Provider = "service-settings"
         RemoteEduteams = "remote-eduteams"
@@ -362,7 +360,8 @@ class WaldurClient(object):
         Note:
         If get_first or get_few have been set, then multiple results are correct.
         In the first case, we get the first result, in the second case we get all results.
-        If get_first or get_few have not been set, then multiple results are not correct."""
+        If get_first or get_few have not been set, then multiple results are not correct.
+        """
 
         result = self._get(url, valid_states=[200], params=query_params)
         if not result:
@@ -1801,112 +1800,145 @@ class WaldurClient(object):
         )
 
     def create_project_permission(
-        self, user_uuid, project_uuid, role, expiration_time=None
+        self, project_uuid, user_uuid, role_uuid, expiration_time=None
     ):
-        return self._create_resource(
-            self.Endpoints.ProjectPermissions,
-            {
-                "user": self._build_resource_url(self.Endpoints.Users, user_uuid),
-                "project": self._build_resource_url(
-                    self.Endpoints.Project, project_uuid
-                ),
-                "role": role,
+        return self._post(
+            f"projects/{project_uuid}/add_user/",
+            valid_states=[201],
+            json={
+                "user": user_uuid,
+                "role": role_uuid,
                 "expiration_time": expiration_time,
             },
         )
 
-    def get_project_permissions(self, project_uuid, user_uuid=None, role=None):
-        query_params = {
-            "project": project_uuid,
-        }
-        if role:
-            query_params["role"] = role
+    def get_project_permissions(self, project_uuid, user_uuid=None, role_uuid=None):
+        query_params = {}
+        if role_uuid:
+            query_params["role"] = role_uuid
         if user_uuid:
             query_params["user"] = user_uuid
 
         return self._query_resource_list(
-            self.Endpoints.ProjectPermissions, query_params
+            f"projects/{project_uuid}/list_users/", query_params
         )
 
-    def list_project_permissions(self, filters=None):
-        return self._query_resource_list(self.Endpoints.ProjectPermissions, filters)
-
-    def update_project_permission(self, permission_id, new_expiration_time):
-        return self._update_resource(
-            self.Endpoints.ProjectPermissions,
-            permission_id,
-            {"expiration_time": new_expiration_time},
+    def update_project_permission(
+        self, project_uuid, user_uuid, role_uuid, expiration_time
+    ):
+        return self._post(
+            f"projects/{project_uuid}/update_user/",
+            valid_states=[200],
+            json={
+                "user": user_uuid,
+                "role": role_uuid,
+                "expiration_time": expiration_time,
+            },
         )
 
-    def remove_project_permission(self, permission_id):
-        return self._delete_resource(self.Endpoints.ProjectPermissions, permission_id)
+    def remove_project_permission(self, project_uuid, user_uuid, role_uuid):
+        return self._post(
+            f"projects/{project_uuid}/delete_user/",
+            valid_states=[200],
+            json={
+                "user": user_uuid,
+                "role": role_uuid,
+            },
+        )
 
     def create_customer_permission(
-        self, user_uuid, customer_uuid, role, expiration_time=None
+        self, customer_uuid, user_uuid, role_uuid, expiration_time=None
     ):
-        return self._create_resource(
-            self.Endpoints.CustomerPermissions,
-            {
-                "user": self._build_resource_url(self.Endpoints.Users, user_uuid),
-                "customer": self._build_resource_url(
-                    self.Endpoints.Customers, customer_uuid
-                ),
-                "role": role,
+        return self._post(
+            f"customers/{customer_uuid}/add_user/",
+            valid_states=[201],
+            json={
+                "user": user_uuid,
+                "role": role_uuid,
                 "expiration_time": expiration_time,
             },
         )
 
-    def get_customer_permissions(self, customer_uuid, user_uuid=None, role=None):
-        query_params = {
-            "customer": customer_uuid,
-        }
-        if role:
-            query_params["role"] = role
-        if user_uuid:
-            query_params["user"] = (user_uuid,)
-
-        return self._query_resource_list(
-            self.Endpoints.CustomerPermissions, query_params
-        )
-
-    def list_customer_permissions(self, filters=None):
-        return self._query_resource_list(self.Endpoints.CustomerPermissions, filters)
-
-    def update_customer_permission(self, permission_id, new_expiration_time):
-        return self._update_resource(
-            self.Endpoints.CustomerPermissions,
-            permission_id,
-            {"expiration_time": new_expiration_time},
-        )
-
-    def remove_customer_permission(self, permission_id):
-        return self._delete_resource(self.Endpoints.CustomerPermissions, permission_id)
-
-    def create_offering_permission(self, user_uuid, offering_uuid):
-        return self._create_resource(
-            self.Endpoints.OfferingPermissions,
-            {
-                "user": self._build_resource_url(self.Endpoints.Users, user_uuid),
-                "offering": self._build_resource_url(
-                    self.Endpoints.MarketplaceProviderOffering, offering_uuid
-                ),
-            },
-        )
-
-    def get_offering_permissions(self, offering_uuid, user_uuid=None):
-        query_params = {
-            "offering_uuid": offering_uuid,
-        }
+    def get_customer_permissions(self, customer_uuid, user_uuid=None, role_uuid=None):
+        query_params = {}
+        if role_uuid:
+            query_params["role"] = role_uuid
         if user_uuid:
             query_params["user"] = user_uuid
 
         return self._query_resource_list(
-            self.Endpoints.OfferingPermissions,
-            query_params,
+            f"customers/{customer_uuid}/list_users/", query_params
         )
 
-    def remove_offering_permission(self, permission_id):
-        return self._delete_resource(self.Endpoints.OfferingPermissions, permission_id)
+    def update_customer_permission(
+        self, customer_uuid, user_uuid, role_uuid, expiration_time
+    ):
+        return self._post(
+            f"customers/{customer_uuid}/update_user/",
+            valid_states=[200],
+            json={
+                "user": user_uuid,
+                "role": role_uuid,
+                "expiration_time": expiration_time,
+            },
+        )
+
+    def remove_customer_permission(self, customer_uuid, user_uuid, role_uuid):
+        return self._post(
+            f"customers/{customer_uuid}/delete_user/",
+            valid_states=[200],
+            json={
+                "user": user_uuid,
+                "role": role_uuid,
+            },
+        )
+
+    def create_offering_permission(
+        self, offering_uuid, user_uuid, role_uuid, expiration_time=None
+    ):
+        return self._post(
+            f"offerings/{offering_uuid}/add_user/",
+            valid_states=[201],
+            json={
+                "user": user_uuid,
+                "role": role_uuid,
+                "expiration_time": expiration_time,
+            },
+        )
+
+    def get_offering_permissions(self, offering_uuid, user_uuid=None, role_uuid=None):
+        query_params = {}
+        if role_uuid:
+            query_params["role"] = role_uuid
+        if user_uuid:
+            query_params["user"] = user_uuid
+
+        return self._query_resource_list(
+            f"offerings/{offering_uuid}/list_users/", query_params
+        )
+
+    def update_offering_permission(
+        self, offering_uuid, user_uuid, role_uuid, expiration_time
+    ):
+        return self._post(
+            f"offerings/{offering_uuid}/update_user/",
+            valid_states=[200],
+            json={
+                "user": user_uuid,
+                "role": role_uuid,
+                "expiration_time": expiration_time,
+            },
+        )
+
+    def remove_offering_permission(self, offering_uuid, user_uuid, role_uuid):
+        return self._post(
+            f"offerings/{offering_uuid}/delete_user/",
+            valid_states=[200],
+            json={
+                "user": user_uuid,
+                "role": role_uuid,
+            },
+        )
 
     def create_project_invitation(
         self, email: str, project: str, project_role: ProjectRole
