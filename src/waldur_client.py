@@ -1803,7 +1803,7 @@ class WaldurClient(object):
         self, project_uuid, user_uuid, role_uuid, expiration_time=None
     ):
         return self._post(
-            f"projects/{project_uuid}/add_user/",
+            self._build_url(f"projects/{project_uuid}/add_user/"),
             valid_states=[201],
             json={
                 "user": user_uuid,
@@ -1827,7 +1827,7 @@ class WaldurClient(object):
         self, project_uuid, user_uuid, role_uuid, expiration_time
     ):
         return self._post(
-            f"projects/{project_uuid}/update_user/",
+            self._build_url(f"projects/{project_uuid}/update_user/"),
             valid_states=[200],
             json={
                 "user": user_uuid,
@@ -1838,7 +1838,7 @@ class WaldurClient(object):
 
     def remove_project_permission(self, project_uuid, user_uuid, role_uuid):
         return self._post(
-            f"projects/{project_uuid}/delete_user/",
+            self._build_url(f"projects/{project_uuid}/delete_user/"),
             valid_states=[200],
             json={
                 "user": user_uuid,
@@ -1850,7 +1850,7 @@ class WaldurClient(object):
         self, customer_uuid, user_uuid, role_uuid, expiration_time=None
     ):
         return self._post(
-            f"customers/{customer_uuid}/add_user/",
+            self._build_url(f"customers/{customer_uuid}/add_user/"),
             valid_states=[201],
             json={
                 "user": user_uuid,
@@ -1874,7 +1874,7 @@ class WaldurClient(object):
         self, customer_uuid, user_uuid, role_uuid, expiration_time
     ):
         return self._post(
-            f"customers/{customer_uuid}/update_user/",
+            self._build_url(f"customers/{customer_uuid}/update_user/"),
             valid_states=[200],
             json={
                 "user": user_uuid,
@@ -1885,7 +1885,7 @@ class WaldurClient(object):
 
     def remove_customer_permission(self, customer_uuid, user_uuid, role_uuid):
         return self._post(
-            f"customers/{customer_uuid}/delete_user/",
+            self._build_url(f"customers/{customer_uuid}/delete_user/"),
             valid_states=[200],
             json={
                 "user": user_uuid,
@@ -1897,7 +1897,7 @@ class WaldurClient(object):
         self, offering_uuid, user_uuid, role_uuid, expiration_time=None
     ):
         return self._post(
-            f"offerings/{offering_uuid}/add_user/",
+            self._build_url(f"offerings/{offering_uuid}/add_user/"),
             valid_states=[201],
             json={
                 "user": user_uuid,
@@ -1921,7 +1921,7 @@ class WaldurClient(object):
         self, offering_uuid, user_uuid, role_uuid, expiration_time
     ):
         return self._post(
-            f"offerings/{offering_uuid}/update_user/",
+            self._build_url(f"offerings/{offering_uuid}/update_user/"),
             valid_states=[200],
             json={
                 "user": user_uuid,
@@ -1932,7 +1932,7 @@ class WaldurClient(object):
 
     def remove_offering_permission(self, offering_uuid, user_uuid, role_uuid):
         return self._post(
-            f"offerings/{offering_uuid}/delete_user/",
+            self._build_url(f"offerings/{offering_uuid}/delete_user/"),
             valid_states=[200],
             json={
                 "user": user_uuid,
