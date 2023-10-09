@@ -183,6 +183,7 @@ class WaldurClient(object):
         TenantSecurityGroup = "openstack-security-groups"
         UserInvitations = "user-invitations"
         Users = "users"
+        Roles = "roles"
         Volume = "openstacktenant-volumes"
         VolumeType = "openstacktenant-volume-types"
         ServerGroup = "openstacktenant-server-groups"
@@ -470,9 +471,9 @@ class WaldurClient(object):
         url = self._build_url(self.Endpoints.Users)
         return self._get_count(url, **kwargs)
 
-    def count_customer_permissions(self, **kwargs):
-        url = self._build_url(self.Endpoints.CustomerPermissions)
-        return self._get_count(url, **kwargs)
+    def get_roles(self, **kwargs):
+        url = self._build_url(self.Endpoints.Roles)
+        return self._get_all(url, **kwargs)
 
     def list_ssh_keys(self):
         url = self._build_url(self.Endpoints.SshKey)
