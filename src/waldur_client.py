@@ -156,7 +156,6 @@ class WaldurClient(object):
         MarketplaceCategories = "marketplace-categories"
         MarketplaceProviderOffering = "marketplace-provider-offerings"
         MarketplaceOrder = "marketplace-orders"
-        MarketplaceOrder = "marketplace-order-items"
         MarketplaceProviderPlan = "marketplace-plans"
         MarketplacePublicOffering = "marketplace-public-offerings"
         MarketplaceResources = "marketplace-resources"
