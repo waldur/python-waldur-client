@@ -824,7 +824,7 @@ class WaldurClient(object):
         if offering_uuid is not None:
             params["offering_uuid"] = offering_uuid
         if fields is not None:
-            if type(fields) is not list:
+            if not isinstance(fields, list):
                 fields = [fields]
             params["field"] = fields
 
