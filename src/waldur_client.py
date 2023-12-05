@@ -220,6 +220,8 @@ class WaldurClient(object):
     def _build_resource_url(
         self, endpoint, uid1, action=None, sub_endpoint=None, uid2=None
     ):
+        if not uid1:
+            raise WaldurClientException("Resource ID is empty.")
         parts = [endpoint, str(uid1)]
 
         if sub_endpoint is not None and uid2 is not None:
