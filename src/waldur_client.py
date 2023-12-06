@@ -156,7 +156,6 @@ class WaldurClient(object):
         MarketplaceCategories = "marketplace-categories"
         MarketplaceProviderOffering = "marketplace-provider-offerings"
         MarketplaceOrder = "marketplace-orders"
-        MarketplaceOrderItem = "marketplace-order-items"
         MarketplaceProviderPlan = "marketplace-plans"
         MarketplacePublicOffering = "marketplace-public-offerings"
         MarketplaceResources = "marketplace-resources"
@@ -825,7 +824,7 @@ class WaldurClient(object):
         if offering_uuid is not None:
             params["offering_uuid"] = offering_uuid
         if fields is not None:
-            if type(fields) is not list:
+            if not isinstance(fields, list):
                 fields = [fields]
             params["field"] = fields
 
@@ -1147,68 +1146,76 @@ class WaldurClient(object):
     def list_orders(self, filters=None):
         return self._query_resource_list(self.Endpoints.MarketplaceOrder, filters)
 
-    def get_order_item(self, order_item_uuid):
-        return self._get_resource(
-            WaldurClient.Endpoints.MarketplaceOrderItem, order_item_uuid
-        )
-
-    def list_order_items(self, filters=None):
-        return self._query_resource_list(self.Endpoints.MarketplaceOrderItem, filters)
-
-    def marketplace_order_item_approve(self, order_item_uuid: str):
+    def marketplace_order_approve_by_consumer(self, order_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOrderItem,
-            order_item_uuid,
-            action="approve",
+            self.Endpoints.MarketplaceOrder,
+            order_uuid,
+            action="approve_by_consumer",
         )
         return self._post(url, valid_states=[200])
 
-    def marketplace_order_item_reject(self, order_item_uuid: str):
+    def marketplace_order_approve_by_provider(self, order_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOrderItem,
-            order_item_uuid,
-            action="reject",
+            self.Endpoints.MarketplaceOrder,
+            order_uuid,
+            action="approve_by_provider",
         )
         return self._post(url, valid_states=[200])
 
-    def marketplace_order_item_terminate(self, order_item_uuid: str):
+    def marketplace_order_reject_by_consumer(self, order_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOrderItem,
-            order_item_uuid,
-            action="terminate",
+            self.Endpoints.MarketplaceOrder,
+            order_uuid,
+            action="reject_by_consumer",
+        )
+        return self._post(url, valid_states=[200])
+
+    def marketplace_order_reject_by_provider(self, order_uuid: str):
+        url = self._build_resource_url(
+            self.Endpoints.MarketplaceOrder,
+            order_uuid,
+            action="reject_by_provider",
+        )
+        return self._post(url, valid_states=[200])
+
+    def marketplace_order_cancel(self, order_uuid: str):
+        url = self._build_resource_url(
+            self.Endpoints.MarketplaceOrder,
+            order_uuid,
+            action="cancel",
         )
 
         return self._post(url, valid_states=[202])
 
-    def marketplace_order_item_set_state_executing(self, order_item_uuid: str):
+    def marketplace_order_set_state_executing(self, order_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOrderItem,
-            order_item_uuid,
+            self.Endpoints.MarketplaceOrder,
+            order_uuid,
             action="set_state_executing",
         )
 
         return self._post(url, valid_states=[200])
 
-    def marketplace_order_item_set_state_done(self, order_item_uuid: str):
+    def marketplace_order_set_state_done(self, order_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOrderItem,
-            order_item_uuid,
+            self.Endpoints.MarketplaceOrder,
+            order_uuid,
             action="set_state_done",
         )
 
         return self._post(url, valid_states=[200])
 
-    def marketplace_order_item_set_state_erred(
+    def marketplace_order_set_state_erred(
         self,
-        order_item_uuid: str,
+        order_uuid: str,
         error_message: str = "",
         error_traceback: str = "",
     ):
         payload = {"error_message": error_message, "error_traceback": error_traceback}
 
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOrderItem,
-            order_item_uuid,
+            self.Endpoints.MarketplaceOrder,
+            order_uuid,
             action="set_state_erred",
         )
 
@@ -1224,10 +1231,10 @@ class WaldurClient(object):
         waited = 0
         while True:
             order = self.get_order(order_uuid)
-            if order["items"][0]["state"] == "erred":
-                raise InvalidStateError(order["items"][0]["error_message"])
+            if order["state"] == "erred":
+                raise InvalidStateError(order["error_message"])
 
-            resource_uuid = order["items"][0].get(resource_field)
+            resource_uuid = order.get(resource_field)
             if resource_uuid:
                 return resource_uuid
             time.sleep(interval)
@@ -1664,16 +1671,19 @@ class WaldurClient(object):
     ):
         attributes = attributes or {}
         limits = limits or {}
-        order_item = {
+        payload = {
+            "project": self._build_resource_url(self.Endpoints.Project, project_uuid),
             "offering": self._build_resource_url(
                 self.Endpoints.MarketplacePublicOffering, offering_uuid
             ),
             "attributes": attributes,
             "limits": limits,
+            # TODO: replace with checkbox data from frontend
+            "accepting_terms_of_service": True,
         }
 
         if plan_uuid:
-            order_item["plan"] = self._build_resource_url(
+            payload["plan"] = self._build_resource_url(
                 self.Endpoints.MarketplacePublicOffering,
                 offering_uuid,
                 sub_endpoint="plans",
@@ -1681,15 +1691,8 @@ class WaldurClient(object):
             )
 
         if callback_url:
-            order_item["callback_url"] = callback_url
+            payload["callback_url"] = callback_url
 
-        # TODO: replace with checkbox data from frontend
-        order_item["accepting_terms_of_service"] = True
-
-        payload = {
-            "project": self._build_resource_url(self.Endpoints.Project, project_uuid),
-            "items": [order_item],
-        }
         return self._create_resource(self.Endpoints.MarketplaceOrder, payload=payload)
 
     def marketplace_resource_update_limits_order(
