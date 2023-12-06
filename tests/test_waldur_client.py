@@ -133,7 +133,8 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
 
         self.order = {
             "uuid": "9ae5e13294884628aaf984a82214f7c4",
-            "items": [{"state": "executing", "resource_uuid": self.instance["uuid"]}],
+            "state": "executing",
+            "resource_uuid": self.instance["uuid"],
         }
 
         url = self._get_url("marketplace-orders")
@@ -142,7 +143,7 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
         url = self._get_url("marketplace-orders/%s" % self.order["uuid"])
         responses.add(responses.GET, url, json=self.order, status=200)
 
-        url = self._get_url("marketplace-orders/order_uuid/approve")
+        url = self._get_url("marketplace-orders/order_uuid/approve_by_consumer")
         responses.add(responses.POST, url, json=self.order, status=200)
 
     @responses.activate
@@ -152,27 +153,21 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
             actual,
             {
                 "project": self._get_url("projects/uuid_project"),
-                "items": [
-                    {
-                        "accepting_terms_of_service": True,
-                        "attributes": {
-                            "name": "instance",
-                            "image": "url_image",
-                            "data_volume_size": 5120,
-                            "user_data": "user_data",
-                            "floating_ips": [{"subnet": "url_subnet"}],
-                            "internal_ips_set": [{"subnet": "url_subnet"}],
-                            "ssh_public_key": "url_ssh_key",
-                            "system_volume_size": 10240,
-                            "flavor": "url_flavor",
-                            "security_groups": [{"url": "url_security_groups"}],
-                        },
-                        "offering": self._get_url(
-                            "marketplace-public-offerings/uuid_offering"
-                        ),
-                        "limits": {},
-                    }
-                ],
+                "accepting_terms_of_service": True,
+                "attributes": {
+                    "name": "instance",
+                    "image": "url_image",
+                    "data_volume_size": 5120,
+                    "user_data": "user_data",
+                    "floating_ips": [{"subnet": "url_subnet"}],
+                    "internal_ips_set": [{"subnet": "url_subnet"}],
+                    "ssh_public_key": "url_ssh_key",
+                    "system_volume_size": 10240,
+                    "flavor": "url_flavor",
+                    "security_groups": [{"url": "url_security_groups"}],
+                },
+                "offering": self._get_url("marketplace-public-offerings/uuid_offering"),
+                "limits": {},
             },
         )
 
@@ -194,7 +189,7 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
         self.params["flavor_min_ram"] = 2000
 
         actual = self.create_instance()
-        self.assertEqual(actual["items"][0]["attributes"]["flavor"], self.flavor["url"])
+        self.assertEqual(actual["attributes"]["flavor"], self.flavor["url"])
 
     @responses.activate
     def test_if_networks_do_no_have_a_subnet_error_is_raised(self):
@@ -235,8 +230,8 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
 
     @responses.activate
     def test_raise_exception_if_order_item_state_is_erred(self):
-        self.order["items"][0]["state"] = "erred"
-        self.order["items"][0]["error_message"] = "error message"
+        self.order["state"] = "erred"
+        self.order["error_message"] = "error message"
         url = self._get_url("marketplace-orders/%s" % self.order["uuid"])
         responses.replace(responses.GET, url, json=self.order, status=200)
         self.assertRaises(WaldurClientException, self.create_instance)
