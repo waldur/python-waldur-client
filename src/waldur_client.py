@@ -2106,21 +2106,17 @@ class WaldurClient(object):
             self.Endpoints.SlurmAllocationUserUsages, filters
         )
 
-    def update_offering_components(
-        self, offering_uuid: str, components: List[OfferingComponent]
+    def create_offering_component(
+        self, offering_uuid: str, component: OfferingComponent
     ):
         url = self._build_resource_url(
             self.Endpoints.MarketplaceProviderOffering,
             offering_uuid,
-            "update_components",
+            "create_offering_component",
         )
-        components_json = [
-            {
-                k: v for k, v in dataclasses.asdict(component).items() if v
-            }  # Drop all keys with None or empty value
-            for component in components
-        ]
-        return self._post(url, valid_states=[200], json=components_json)
+        # Drop all keys with None or empty value
+        component_json = {k: v for k, v in dataclasses.asdict(component).items() if v}
+        return self._post(url, valid_states=[201], json=component_json)
 
     def create_support_issue(
         self, summary, issue_type, caller_url, remote_id, **kwargs
