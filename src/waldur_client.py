@@ -194,7 +194,7 @@ class WaldurClient(object):
         "OpenStackTenant.Volume": Endpoints.Volume,
     }
 
-    def __init__(self, api_url, access_token):
+    def __init__(self, api_url, access_token, user_agent=None):
         """
         Initializes a Waldur client
         :param api_url: a fully qualified URL to the Waldur API. Example: https://waldur.example.com:8000/api
@@ -206,6 +206,8 @@ class WaldurClient(object):
             "Authorization": "token %s" % access_token,
             "Content-Type": "application/json",
         }
+        if user_agent is not None:
+            self.headers["User-Agent"] = user_agent
 
     def _ensure_trailing_slash(self, url):
         return url if url[-1] == "/" else "%s/" % url
