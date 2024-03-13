@@ -1789,13 +1789,34 @@ class WaldurClient(object):
         )
 
     def create_component_usages(
-        self, plan_period_uuid: str, usages: List[ComponentUsage]
+        self,
+        plan_period_uuid: str = None,
+        usages: List[ComponentUsage] = [],
+        resource_uuid=None,
     ):
         url = self._build_url(f"{self.Endpoints.ComponentUsage}/set_usage/")
         payload = {
-            "plan_period": plan_period_uuid,
             "usages": [dataclasses.asdict(usage) for usage in usages],
         }
+
+        if plan_period_uuid is not None:
+            payload.update(
+                {
+                    "plan_period": plan_period_uuid,
+                }
+            )
+        else:
+            if resource_uuid is not None:
+                payload.update(
+                    {
+                        "resource": resource_uuid,
+                    }
+                )
+            else:
+                raise ValidationError(
+                    "Neither plan_period_uuid nor resource_uuid provided"
+                )
+
         return self._post(url, valid_states=[201], json=payload)
 
     def get_remote_eduteams_user(self, cuid):
