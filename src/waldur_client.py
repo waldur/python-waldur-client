@@ -119,9 +119,9 @@ class ProjectRole(Enum):
 
 class SlurmAllocationState(Enum):
     CREATING = "creating"
-    UPDATE_SCHEDULED = "updating"
-    UPDATING = "deletion_scheduled"
-    DELETION_SCHEDULED = "update_scheduled"
+    UPDATE_SCHEDULED = "update_scheduled"
+    UPDATING = "updating"
+    DELETION_SCHEDULED = "deletion_scheduled"
     DELETING = "deleting"
     OK = "ok"
     ERRED = "erred"
