@@ -95,6 +95,7 @@ class OfferingComponent:
     type: str
     name: str
     measured_unit: str
+    uuid: str = ""
     description: str = ""
     limit_period: str = ""
     limit_amount: int = None
@@ -2138,6 +2139,19 @@ class WaldurClient(object):
             "create_offering_component",
         )
         # Drop all keys with None or empty value
+        component_json = {
+            k: v for k, v in dataclasses.asdict(component).items() if v and k != "uuid"
+        }
+        return self._post(url, valid_states=[201], json=component_json)
+
+    def update_offering_component(
+        self, offering_uuid: str, component: OfferingComponent
+    ):
+        url = self._build_resource_url(
+            self.Endpoints.MarketplaceProviderOffering,
+            offering_uuid,
+            "update_offering_component",
+        )
         component_json = {k: v for k, v in dataclasses.asdict(component).items() if v}
         return self._post(url, valid_states=[201], json=component_json)
 
