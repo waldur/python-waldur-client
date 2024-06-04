@@ -2153,7 +2153,7 @@ class WaldurClient(object):
             "update_offering_component",
         )
         component_json = {k: v for k, v in dataclasses.asdict(component).items() if v}
-        return self._post(url, valid_states=[201], json=component_json)
+        return self._post(url, valid_states=[200], json=component_json)
 
     def create_support_issue(
         self, summary, issue_type, caller_url, remote_id, **kwargs
