@@ -1971,15 +1971,15 @@ class WaldurClient(object):
         )
 
     def create_project_invitation(
-        self, email: str, project: str, project_role: ProjectRole
+        self, email: str, project: str, role: str
     ):
         if is_uuid(project):
             project = self._build_resource_url(self.Endpoints.Project, project)
 
         payload = {
             "email": email,
-            "project": project,
-            "project_role": project_role.value,
+            "scope": project,
+            "role": role,
         }
 
         return self._create_resource(self.Endpoints.UserInvitations, payload)
