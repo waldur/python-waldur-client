@@ -112,12 +112,6 @@ class ResourceState(Enum):
     TERMINATED = "terminated"
 
 
-class ProjectRole(Enum):
-    ADMINISTRATOR = "admin"
-    MANAGER = "manager"
-    MEMBER = "member"
-
-
 class SlurmAllocationState(Enum):
     CREATING = "creating"
     UPDATE_SCHEDULED = "update_scheduled"
@@ -181,7 +175,6 @@ class WaldurClient(object):
         Subnet = "openstacktenant-subnets"
         Tenant = "openstack-tenants"
         TenantSecurityGroup = "openstack-security-groups"
-        UserInvitations = "user-invitations"
         Users = "users"
         Roles = "roles"
         Volume = "openstacktenant-volumes"
@@ -1969,20 +1962,6 @@ class WaldurClient(object):
                 "role": role_uuid,
             },
         )
-
-    def create_project_invitation(
-        self, email: str, project: str, project_role: ProjectRole
-    ):
-        if is_uuid(project):
-            project = self._build_resource_url(self.Endpoints.Project, project)
-
-        payload = {
-            "email": email,
-            "project": project,
-            "project_role": project_role.value,
-        }
-
-        return self._create_resource(self.Endpoints.UserInvitations, payload)
 
     def create_remote_offering_user(
         self, offering: str, user: str, username: str = None
