@@ -172,7 +172,8 @@ class WaldurClient(object):
         SlurmAllocationUserUsages = "slurm-allocation-user-usages"
         Snapshot = "openstacktenant-snapshots"
         SshKey = "keys"
-        Subnet = "openstacktenant-subnets"
+        TenantSubnet = "openstacktenant-subnets"
+        Subnet = "openstack-subnets"
         Tenant = "openstack-tenants"
         TenantSecurityGroup = "openstack-security-groups"
         Users = "users"
@@ -511,7 +512,13 @@ class WaldurClient(object):
         return self._query_resource(self.Endpoints.FloatingIP, {"address": address})
 
     def _get_subnet(self, identifier):
-        return self._get_resource(self.Endpoints.Subnet, identifier)
+        return self._get_resource(self.Endpoints.TenantSubnet, identifier)
+
+    def _get_tenant_subnet_by_uuid(self, uuid):
+        query = {
+            "uuid": uuid,
+        }
+        return self._query_resource(self.Endpoints.Subnet, query)
 
     def _get_volume_type(self, identifier, settings_uuid):
         return self._get_property(self.Endpoints.VolumeType, identifier, settings_uuid)
@@ -616,6 +623,141 @@ class WaldurClient(object):
         endpoint = self._build_url(self.Endpoints.Network)
         return self._query_resource_list(endpoint, filters)
 
+    def connect_subnet(self, uuid):
+        return self._execute_resource_action(
+            endpoint=self.Endpoints.Subnet,
+            uuid=uuid,
+            action="connect",
+        )
+
+    def disconnect_subnet(self, uuid):
+        return self._execute_resource_action(
+            endpoint=self.Endpoints.Subnet,
+            uuid=uuid,
+            action="disconnect",
+        )
+
+    def unlink_subnet(self, uuid):
+        return self._execute_resource_action(
+            endpoint=self.Endpoints.Subnet,
+            uuid=uuid,
+            action="unlink",
+        )
+
+    def create_subnet(
+        self,
+        name,
+        tenant,
+        project,
+        network_uuid,
+        cidr,
+        allocation_pools,
+        enable_dhcp,
+        dns_nameservers,
+        disable_gateway,
+        gateway_ip=None,
+        wait=True,
+        interval=10,
+        timeout=600,
+    ):
+        tenant = self._get_tenant(tenant, project)
+        payload = {
+            "name": name,
+            "tenant": tenant,
+            "project": project,
+            "network_uuid": network_uuid,
+            "cidr": cidr,
+            "dns_nameservers": dns_nameservers,
+            "allocation_pools": allocation_pools,
+            "enable_dhcp": enable_dhcp,
+            "disable_gateway": disable_gateway,
+        }
+
+        if gateway_ip:
+            if disable_gateway:
+                raise ValidationError(
+                    "Gateway IP cannot be set if disabling gateway is requested"
+                )
+            payload.update({"gateway_ip": gateway_ip})
+
+        if not gateway_ip and not disable_gateway:
+            raise ValidationError(
+                "Either gateway IP must be set or it must be disabled"
+            )
+
+        action_url = "%s/%s/create_subnet" % (
+            self.Endpoints.Network,
+            network_uuid,
+        )
+        resource = self._create_resource(action_url, payload)
+
+        if wait:
+            self._wait_for_resource(
+                self.Endpoints.Network, resource["uuid"], interval, timeout
+            )
+
+        return resource
+
+    def update_subnet(
+        self,
+        uuid,
+        name,
+        tenant=None,
+        gateway_ip=None,
+        disable_gateway=None,
+        enable_dhcp=None,
+        dns_nameservers=None,
+        connect_subnet=None,
+        disconnect_subnet=None,
+        unlink_subnet=None,
+    ):
+        payload = {
+            "name": name,
+        }
+        if tenant:
+            payload.update({"tenant": tenant})
+        if gateway_ip:
+            if disable_gateway:
+                raise ValidationError(
+                    "Gateway IP cannot be set if disabling gateway is requested"
+                )
+            payload.update({"gateway_ip": gateway_ip})
+        if not gateway_ip and not disable_gateway:
+            raise ValidationError(
+                "Either gateway IP must be set or it must be disabled"
+            )
+        if disable_gateway:
+            payload.update({"disable_gateway": disable_gateway})
+        if enable_dhcp:
+            payload.update({"enable_dhcp": enable_dhcp})
+        if dns_nameservers:
+            payload.update({"dns_nameservers": dns_nameservers})
+        if connect_subnet:
+            if disconnect_subnet:
+                raise ValidationError(
+                    "connect_subnet and disconnect_subnet cannot both be True"
+                )
+            self.connect_subnet(uuid)
+        if disconnect_subnet:
+            if connect_subnet:
+                raise ValidationError(
+                    "connect_subnet and disconnect_subnet cannot both be True"
+                )
+            self.disconnect_subnet(uuid)
+
+        if unlink_subnet:
+            self.unlink_subnet(uuid)
+
+        return self._update_resource(self.Endpoints.TenantSubnet, uuid, payload)
+
+    def list_subnets(self, filters=None):
+        endpoint = self._build_url(self.Endpoints.TenantSubnet)
+        return self._query_resource_list(endpoint, filters)
+
+    def list_tenant_subnets(self, tenant):
+        query = {"tenant": tenant}
+        return self._query_resource_list(self.Endpoints.TenantSubnet, query)
+
     def list_service_settings(self, filters=None):
         endpoint = self._build_url(self.Endpoints.Provider)
         return self._query_resource_list(endpoint, filters)
@@ -665,6 +807,18 @@ class WaldurClient(object):
             )
 
         return resource
+
+    def get_subnet_by_uuid(self, uuid):
+        subnet = None
+        try:
+            subnet = self._get_tenant_subnet_by_uuid(uuid=uuid)
+        except ObjectDoesNotExist:
+            pass
+
+        return subnet
+
+    def delete_subnet(self, uuid):
+        return self._delete_resource(self.Endpoints.TenantSubnet, uuid)
 
     def update_security_group_description(self, security_group, description):
         payload = {

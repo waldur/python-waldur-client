@@ -38,6 +38,119 @@ class BaseWaldurClientTest(unittest.TestCase):
         }
 
 
+class SubnetTest(BaseWaldurClientTest):
+    subnet = {
+        "access_token": "token",
+        "api_url": "api",
+        "uuid": "df3ee5cac5874dffa1aad86bc1919d8d",
+        "name": "subnet",
+        "tenant": "tenant",
+        "project": "59e46d029a79473779915a22",
+        "dns_nameservers": ["8.8.8.8", "8.8.4.4"],
+        "gateway_ip": "192.168.42.1",
+        "disable_gateway": False,
+        "state": "present",
+        "wait": True,
+        "interval": 10,
+        "timeout": 600,
+        "connect_subnet": False,
+        "disconnect_subnet": False,
+    }
+
+    @responses.activate
+    def update_subnet(self, **kwargs):
+        responses.add(
+            responses.GET, self._get_url("openstacktenant-subnets"), json=[self.subnet]
+        )
+        post_url = "%s/" % (
+            self._get_subresource_url("openstacktenant-subnets", self.subnet["uuid"])
+        )
+        responses.add(responses.PUT, post_url, json=self.subnet, status=200)
+
+        instance_url = "%s/openstacktenant-subnets/%s/" % (
+            self.api_url,
+            self.subnet["uuid"],
+        )
+        responses.add(responses.GET, instance_url, json=self.subnet, status=200)
+
+        client = WaldurClient(self.api_url, self.access_token)
+        response = client.update_subnet(
+            uuid=self.subnet["uuid"],
+            name=self.subnet["name"],
+            tenant=self.tenant["uuid"],
+            disable_gateway=self.subnet["disable_gateway"],
+            gateway_ip=self.subnet.get("gateway_ip"),  # optional value
+            **kwargs
+        )
+        return response
+
+    @responses.activate
+    def test_waldur_client_raises_error_on_invalid_action_config(self):
+        del self.subnet["gateway_ip"]
+
+        self.assertRaises(WaldurClientException, self.update_subnet)
+
+    @responses.activate
+    def test_correct_body_sent(self):
+        self.subnet = {
+            "access_token": "token",
+            "api_url": "api",
+            "uuid": "df3ee5cac5874dffa1aad86bc1919d8d",
+            "name": "subnet",
+            "tenant": "tenant",
+            "project": "59e46d029a79473779915a22",
+            "dns_nameservers": ["8.8.8.8", "8.8.4.4"],
+            "gateway_ip": "192.168.42.1",
+            "disable_gateway": False,
+            "state": "present",
+            "wait": True,
+            "interval": 10,
+            "timeout": 600,
+            "connect_subnet": False,
+            "disconnect_subnet": False,
+        }
+        response = self.update_subnet()
+        self.assertEqual(
+            response,
+            {
+                "access_token": "token",
+                "api_url": "api",
+                "uuid": "df3ee5cac5874dffa1aad86bc1919d8d",
+                "name": "subnet",
+                "tenant": "tenant",
+                "project": "59e46d029a79473779915a22",
+                "dns_nameservers": ["8.8.8.8", "8.8.4.4"],
+                "gateway_ip": "192.168.42.1",
+                "disable_gateway": False,
+                "state": "present",
+                "wait": True,
+                "interval": 10,
+                "timeout": 600,
+                "connect_subnet": False,
+                "disconnect_subnet": False,
+            },
+        )
+
+
+class SubnetConnectTest(BaseWaldurClientTest):
+    def setUp(self):
+        super(SubnetConnectTest, self).setUp()
+        self.expected_url = (
+            "http://example.com:8000/api/openstacktenant-subnets/"
+            "df3ee5cac5874dffa1aad86bc1919d8d/connect/"
+        )
+
+    @responses.activate
+    def valid_url_used_for_action(self):
+        responses.add(
+            responses.POST,
+            self.expected_url,
+            status=202,
+            json={"is_connected": True},
+        )
+        self.client.connect_subnet("df3ee5cac5874dffa1aad86bc1919d8d")
+
+
 class InstanceCreateBaseTest(BaseWaldurClientTest):
     def setUp(self):
         super(InstanceCreateBaseTest, self).setUp()
@@ -113,7 +226,7 @@ class InstanceCreateBaseTest(BaseWaldurClientTest):
             "openstacktenant-flavors",
             {"settings_uuid": "settings_uuid", "name_exact": "flavor"},
         )
-        responses.add(method="GET", url=url, json=[self.flavor], match_querystring=True)
+        responses.add(method="GET", url=url, json=[self.flavor])
 
 
 class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
@@ -181,7 +294,6 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
             method="GET",
             url=url,
             json=[self.flavor, self.flavor, self.flavor],
-            match_querystring=True,
         )
 
         self.params.pop("flavor")
@@ -333,7 +445,9 @@ class SecurityGroupTest(BaseWaldurClientTest):
         )
         get_url = self._get_url("openstack-security-groups", params)
         responses.add(
-            responses.GET, get_url, json=[security_group], match_querystring=True
+            responses.GET,
+            get_url,
+            json=[security_group],
         )
         responses.add(
             responses.GET, self._get_url("openstack-tenants"), json=[self.tenant]
