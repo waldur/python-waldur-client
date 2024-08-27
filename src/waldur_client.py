@@ -1023,7 +1023,8 @@ class WaldurClient(object):
         url = self._build_resource_url(
             self.Endpoints.MarketplaceResources, resource_uuid, action="update_options"
         )
-        return self._post(url, valid_states=[200], json=options)
+        payload = {"options": options}
+        return self._post(url, valid_states=[200], json=payload)
 
     def marketplace_public_offering_get_plans(self, offering_uuid: str):
         url = self._build_resource_url(
