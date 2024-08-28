@@ -165,7 +165,6 @@ class WaldurClient(object):
         ProjectTypes = "project-types"
         Provider = "service-settings"
         RemoteEduteams = "remote-eduteams"
-        SecurityGroup = "openstacktenant-security-groups"
         ServiceProviders = "marketplace-service-providers"
         SlurmAllocations = "slurm-allocations"
         SlurmAssociations = "slurm-associations"
@@ -176,11 +175,11 @@ class WaldurClient(object):
         Subnet = "openstack-subnets"
         Tenant = "openstack-tenants"
         TenantSecurityGroup = "openstack-security-groups"
+        TenantServerGroup = "openstack-server-groups"
         Users = "users"
         Roles = "roles"
         Volume = "openstacktenant-volumes"
         VolumeType = "openstacktenant-volume-types"
-        ServerGroup = "openstacktenant-server-groups"
         SupportIssues = "support-issues"
         SupportComments = "support-comments"
 
@@ -499,14 +498,6 @@ class WaldurClient(object):
 
     def _get_image(self, identifier, settings_uuid):
         return self._get_property(self.Endpoints.Image, identifier, settings_uuid)
-
-    def _get_security_group(self, identifier, settings_uuid):
-        return self._get_property(
-            self.Endpoints.SecurityGroup, identifier, settings_uuid
-        )
-
-    def _get_server_group(self, identifier, settings_uuid):
-        return self._get_property(self.Endpoints.ServerGroup, identifier, settings_uuid)
 
     def _get_floating_ip(self, address):
         return self._query_resource(self.Endpoints.FloatingIP, {"address": address})
@@ -1096,8 +1087,9 @@ class WaldurClient(object):
         :param timeout: a maximum amount of time to wait for operation completion.
         """
         payload = []
+        tenant_uuid = self._get_service_settings(settings_uuid)["scope_uuid"]
         for group in security_groups:
-            security_group = self._get_security_group(group, settings_uuid)
+            security_group = self._get_tenant_security_group(tenant_uuid, group)
             payload.append({"url": security_group["url"]})
 
         self._execute_resource_action(
@@ -1514,6 +1506,7 @@ class WaldurClient(object):
         """
         offering = self._get_offering(offering, project)
         settings_uuid = offering["scope_uuid"]
+        tenant_uuid = self._get_service_settings(settings_uuid)["scope_uuid"]
 
         # Collect attributes
         if flavor:
@@ -1536,7 +1529,7 @@ class WaldurClient(object):
         if security_groups:
             attributes["security_groups"] = []
             for group in security_groups:
-                security_group = self._get_security_group(group, settings_uuid)
+                security_group = self._get_tenant_security_group(tenant_uuid, group)
                 attributes["security_groups"].append({"url": security_group["url"]})
 
         if data_volume_size:
@@ -1557,7 +1550,9 @@ class WaldurClient(object):
             volume_type = self._get_volume_type(data_volume_type, settings_uuid)
             attributes.update({"data_volume_type": volume_type["url"]})
         if server_group:
-            server_group = self._get_resource(self.Endpoints.ServerGroup, server_group)
+            server_group = self._get_resource(
+                self.Endpoints.TenantServerGroup, server_group
+            )
             attributes.update({"server_group": server_group["url"]})
 
         resource_uuid = self._create_scope_via_marketplace(
