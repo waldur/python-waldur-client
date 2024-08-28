@@ -80,7 +80,7 @@ class SubnetTest(BaseWaldurClientTest):
             tenant=self.tenant["uuid"],
             disable_gateway=self.subnet["disable_gateway"],
             gateway_ip=self.subnet.get("gateway_ip"),  # optional value
-            **kwargs
+            **kwargs,
         )
         return response
 
@@ -199,7 +199,7 @@ class InstanceCreateBaseTest(BaseWaldurClientTest):
             "project": "projects",
             "image": "openstacktenant-images",
             "subnet": "openstacktenant-subnets",
-            "security_groups": "openstacktenant-security-groups",
+            "security_groups": "openstack-security-groups",
             "ssh_key": "keys",
         }
         for name in mapping:
@@ -209,7 +209,7 @@ class InstanceCreateBaseTest(BaseWaldurClientTest):
         security_group = self._get_object("security_group")
         responses.add(
             responses.GET,
-            self._get_url("openstacktenant-security-groups"),
+            self._get_url("openstack-security-groups"),
             json=[security_group],
         )
         responses.add(responses.POST, post_url, json=self.instance, status=201)
@@ -242,6 +242,12 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
             responses.GET,
             self._get_url("marketplace-public-offerings"),
             json=[offering],
+        )
+
+        responses.add(
+            responses.GET,
+            self._get_url("service-settings"),
+            json=[{"scope_uuid": "tenant_uuid"}],
         )
 
         self.order = {
@@ -480,7 +486,7 @@ class SecurityGroupTest(BaseWaldurClientTest):
             tenant=self.tenant["name"],
             name=self.security_group["name"],
             rules=self.security_group["rules"],
-            **kwargs
+            **kwargs,
         )
         return response
 
