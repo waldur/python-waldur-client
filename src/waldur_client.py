@@ -461,6 +461,10 @@ class WaldurClient(object):
     def list_users(self, filters=None):
         return self._query_resource_list(self.Endpoints.Users, filters)
 
+    def get_current_user(self):
+        url = self._build_url(self.Endpoints.Users, "me")
+        return self._get(url, valid_states=[200])
+
     def list_freeipa_profiles(self, filters=None):
         return self._query_resource_list(self.Endpoints.FreeIPAProfiles, filters)
 
