@@ -268,7 +268,7 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
     @responses.activate
     def test_valid_body_is_sent(self):
         actual = self.create_instance()
-        self.assertEqual(
+        self.assertDictEqual(
             actual,
             {
                 "project": self._get_url("projects/uuid_project"),
@@ -279,7 +279,7 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
                     "data_volume_size": 5120,
                     "user_data": "user_data",
                     "floating_ips": [{"subnet": "url_subnet"}],
-                    "internal_ips_set": [{"subnet": "url_subnet"}],
+                    "ports": [{"subnet": "url_subnet"}],
                     "ssh_public_key": "url_ssh_key",
                     "system_volume_size": 10240,
                     "flavor": "url_flavor",
