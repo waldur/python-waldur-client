@@ -141,7 +141,7 @@ class WaldurClient(object):
         Configuration = "configuration"
         Customers = "customers"
         Flavor = "openstacktenant-flavors"
-        FloatingIP = "openstacktenant-floating-ips"
+        FloatingIP = "openstack-floating-ips"
         FreeIPAProfiles = "freeipa-profiles"
         Image = "openstacktenant-images"
         Instance = "openstacktenant-instances"
@@ -1215,7 +1215,7 @@ class WaldurClient(object):
 
         return resource
 
-    def update_instance_internal_ips_set(
+    def update_instance_ports(
         self, instance_uuid, subnet_set, wait=True, interval=10, timeout=600
     ):
         """
@@ -1228,15 +1228,15 @@ class WaldurClient(object):
         :param timeout: a maximum amount of time to wait for operation completion.
         """
 
-        payload = {"internal_ips_set": []}
+        payload = {"ports": []}
         for subnet in subnet_set:
             subnet = self._get_subnet(subnet)
-            payload["internal_ips_set"].append({"subnet": subnet["url"]})
+            payload["ports"].append({"subnet": subnet["url"]})
 
         self._execute_resource_action(
             endpoint=self.Endpoints.Instance,
             uuid=instance_uuid,
-            action="update_internal_ips_set",
+            action="update_ports",
             json=payload,
         )
         if wait:
@@ -1533,7 +1533,7 @@ class WaldurClient(object):
             "flavor": flavor["url"],
             "image": image["url"],
             "system_volume_size": system_volume_size * 1024,
-            "internal_ips_set": subnets,
+            "ports": subnets,
             "floating_ips": floating_ips,
         }
 
