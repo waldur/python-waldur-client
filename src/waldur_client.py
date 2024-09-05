@@ -171,7 +171,6 @@ class WaldurClient(object):
         SlurmAllocationUserUsages = "slurm-allocation-user-usages"
         Snapshot = "openstacktenant-snapshots"
         SshKey = "keys"
-        TenantSubnet = "openstacktenant-subnets"
         Subnet = "openstack-subnets"
         Tenant = "openstack-tenants"
         TenantSecurityGroup = "openstack-security-groups"
@@ -503,7 +502,7 @@ class WaldurClient(object):
         return self._query_resource(self.Endpoints.FloatingIP, {"address": address})
 
     def _get_subnet(self, identifier):
-        return self._get_resource(self.Endpoints.TenantSubnet, identifier)
+        return self._get_resource(self.Endpoints.Subnet, identifier)
 
     def _get_tenant_subnet_by_uuid(self, uuid):
         query = {
@@ -739,15 +738,15 @@ class WaldurClient(object):
         if unlink_subnet:
             self.unlink_subnet(uuid)
 
-        return self._update_resource(self.Endpoints.TenantSubnet, uuid, payload)
+        return self._update_resource(self.Endpoints.Subnet, uuid, payload)
 
     def list_subnets(self, filters=None):
-        endpoint = self._build_url(self.Endpoints.TenantSubnet)
+        endpoint = self._build_url(self.Endpoints.Subnet)
         return self._query_resource_list(endpoint, filters)
 
     def list_tenant_subnets(self, tenant):
         query = {"tenant": tenant}
-        return self._query_resource_list(self.Endpoints.TenantSubnet, query)
+        return self._query_resource_list(self.Endpoints.Subnet, query)
 
     def list_service_settings(self, filters=None):
         endpoint = self._build_url(self.Endpoints.Provider)
@@ -809,7 +808,7 @@ class WaldurClient(object):
         return subnet
 
     def delete_subnet(self, uuid):
-        return self._delete_resource(self.Endpoints.TenantSubnet, uuid)
+        return self._delete_resource(self.Endpoints.Subnet, uuid)
 
     def update_security_group_description(self, security_group, description):
         payload = {

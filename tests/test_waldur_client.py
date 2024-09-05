@@ -60,14 +60,14 @@ class SubnetTest(BaseWaldurClientTest):
     @responses.activate
     def update_subnet(self, **kwargs):
         responses.add(
-            responses.GET, self._get_url("openstacktenant-subnets"), json=[self.subnet]
+            responses.GET, self._get_url("openstack-subnets"), json=[self.subnet]
         )
         post_url = "%s/" % (
-            self._get_subresource_url("openstacktenant-subnets", self.subnet["uuid"])
+            self._get_subresource_url("openstack-subnets", self.subnet["uuid"])
         )
         responses.add(responses.PUT, post_url, json=self.subnet, status=200)
 
-        instance_url = "%s/openstacktenant-subnets/%s/" % (
+        instance_url = "%s/openstack-subnets/%s/" % (
             self.api_url,
             self.subnet["uuid"],
         )
@@ -136,7 +136,7 @@ class SubnetConnectTest(BaseWaldurClientTest):
     def setUp(self):
         super(SubnetConnectTest, self).setUp()
         self.expected_url = (
-            "http://example.com:8000/api/openstacktenant-subnets/"
+            "http://example.com:8000/api/openstack-subnets/"
             "df3ee5cac5874dffa1aad86bc1919d8d/connect/"
         )
 
@@ -198,7 +198,7 @@ class InstanceCreateBaseTest(BaseWaldurClientTest):
         mapping = {
             "project": "projects",
             "image": "openstacktenant-images",
-            "subnet": "openstacktenant-subnets",
+            "subnet": "openstack-subnets",
             "security_groups": "openstack-security-groups",
             "ssh_key": "keys",
         }
