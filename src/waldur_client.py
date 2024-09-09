@@ -1972,6 +1972,20 @@ class WaldurClient(object):
 
         return self._post(url, valid_states=[201], json=payload)
 
+    def create_component_user_usage(
+        self, component_usage_uuid, usage, username, offering_user_uuid=None
+    ):
+        url = self._build_resource_url(
+            self.Endpoints.ComponentUsage, component_usage_uuid, "set_user_usage"
+        )
+        payload = {"usage": usage, "username": username}
+        if offering_user_uuid is not None and is_uuid(offering_user_uuid):
+            offering_user_url = self._build_resource_url(
+                self.Endpoints.OfferingUsers, offering_user_uuid
+            )
+            payload["user"] = offering_user_url
+        self._post(url, valid_states=201, json=payload)
+
     def get_remote_eduteams_user(self, cuid):
         return self._create_resource(
             self.Endpoints.RemoteEduteams,
