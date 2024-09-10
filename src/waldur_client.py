@@ -1984,7 +1984,7 @@ class WaldurClient(object):
                 self.Endpoints.OfferingUsers, offering_user_uuid
             )
             payload["user"] = offering_user_url
-        self._post(url, valid_states=201, json=payload)
+        self._post(url, valid_states=[201], json=payload)
 
     def get_remote_eduteams_user(self, cuid):
         return self._create_resource(
