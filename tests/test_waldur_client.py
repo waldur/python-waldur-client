@@ -197,7 +197,7 @@ class InstanceCreateBaseTest(BaseWaldurClientTest):
         post_url = "%s/openstacktenant-instances/" % self.api_url
         mapping = {
             "project": "projects",
-            "image": "openstacktenant-images",
+            "image": "openstack-images",
             "subnet": "openstack-subnets",
             "security_groups": "openstack-security-groups",
             "ssh_key": "keys",
@@ -223,8 +223,8 @@ class InstanceCreateBaseTest(BaseWaldurClientTest):
         responses.add(responses.GET, self.instance_url, json=self.instance)
 
         url = self._get_url(
-            "openstacktenant-flavors",
-            {"settings_uuid": "settings_uuid", "name_exact": "flavor"},
+            "openstack-flavors",
+            {"tenant_uuid": "tenant_uuid", "name_exact": "flavor"},
         )
         responses.add(method="GET", url=url, json=[self.flavor])
 
@@ -293,7 +293,7 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
     @responses.activate
     def test_flavors_are_filtered_by_ram_and_cpu(self):
         url = self._get_url(
-            "openstacktenant-flavors",
+            "openstack-flavors",
             {"ram__gte": 2000, "cores__gte": 2, "o": "cores,ram,disk"},
         )
         responses.add(

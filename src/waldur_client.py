@@ -140,10 +140,10 @@ class WaldurClient(object):
         ComponentUsage = "marketplace-component-usages"
         Configuration = "configuration"
         Customers = "customers"
-        Flavor = "openstacktenant-flavors"
+        Flavor = "openstack-flavors"
         FloatingIP = "openstack-floating-ips"
         FreeIPAProfiles = "freeipa-profiles"
-        Image = "openstacktenant-images"
+        Image = "openstack-images"
         Instance = "openstacktenant-instances"
         Network = "openstack-networks"
         Invoice = "invoices"
@@ -178,7 +178,7 @@ class WaldurClient(object):
         Users = "users"
         Roles = "roles"
         Volume = "openstacktenant-volumes"
-        VolumeType = "openstacktenant-volume-types"
+        VolumeType = "openstack-volume-types"
         SupportIssues = "support-issues"
         SupportComments = "support-comments"
 
@@ -487,8 +487,13 @@ class WaldurClient(object):
             query["name_exact"] = identifier
         return self._query_resource(endpoint, query)
 
-    def _get_flavor(self, identifier, settings_uuid):
-        return self._get_property(self.Endpoints.Flavor, identifier, settings_uuid)
+    def _get_flavor(self, identifier, tenant_uuid):
+        query = {"tenant_uuid": tenant_uuid}
+        if is_uuid(identifier):
+            query["uuid"] = identifier
+        else:
+            query["name_exact"] = identifier
+        return self._query_resource(self.Endpoints.Flavor, query)
 
     def _get_flavor_from_params(self, cpu, ram):
         query_params = {"o": "cores,ram,disk"}
@@ -499,8 +504,13 @@ class WaldurClient(object):
 
         return self._query_resource(self.Endpoints.Flavor, query_params, get_first=True)
 
-    def _get_image(self, identifier, settings_uuid):
-        return self._get_property(self.Endpoints.Image, identifier, settings_uuid)
+    def _get_image(self, identifier, tenant_uuid):
+        query = {"tenant_uuid": tenant_uuid}
+        if is_uuid(identifier):
+            query["uuid"] = identifier
+        else:
+            query["name_exact"] = identifier
+        return self._query_resource(self.Endpoints.Image, query)
 
     def _get_floating_ip(self, address):
         return self._query_resource(self.Endpoints.FloatingIP, {"address": address})
@@ -514,8 +524,13 @@ class WaldurClient(object):
         }
         return self._query_resource(self.Endpoints.Subnet, query)
 
-    def _get_volume_type(self, identifier, settings_uuid):
-        return self._get_property(self.Endpoints.VolumeType, identifier, settings_uuid)
+    def _get_volume_type(self, identifier, tenant_uuid):
+        query = {"tenant_uuid": tenant_uuid}
+        if is_uuid(identifier):
+            query["uuid"] = identifier
+        else:
+            query["name_exact"] = identifier
+        return self._query_resource(self.Endpoints.VolumeType, query)
 
     def _networks_to_payload(self, networks):
         """
@@ -1520,11 +1535,11 @@ class WaldurClient(object):
 
         # Collect attributes
         if flavor:
-            flavor = self._get_flavor(flavor, settings_uuid)
+            flavor = self._get_flavor(flavor, tenant_uuid)
         else:
             flavor = self._get_flavor_from_params(flavor_min_cpu, flavor_min_ram)
 
-        image = self._get_image(image, settings_uuid)
+        image = self._get_image(image, tenant_uuid)
         subnets, floating_ips = self._networks_to_payload(networks)
 
         attributes = {
@@ -1554,10 +1569,10 @@ class WaldurClient(object):
         if tags:
             attributes.update({"tags": tags})
         if system_volume_type:
-            volume_type = self._get_volume_type(system_volume_type, settings_uuid)
+            volume_type = self._get_volume_type(system_volume_type, tenant_uuid)
             attributes.update({"system_volume_type": volume_type["url"]})
         if data_volume_type:
-            volume_type = self._get_volume_type(data_volume_type, settings_uuid)
+            volume_type = self._get_volume_type(data_volume_type, tenant_uuid)
             attributes.update({"data_volume_type": volume_type["url"]})
         if server_group:
             server_group = self._get_resource(
@@ -1626,6 +1641,7 @@ class WaldurClient(object):
 
         offering = self._get_offering(offering, project)
         settings_uuid = offering["scope_uuid"]
+        tenant_uuid = self._get_service_settings(settings_uuid)["scope_uuid"]
 
         # Collect attributes
         attributes = {
@@ -1637,7 +1653,7 @@ class WaldurClient(object):
         if tags:
             attributes.update({"tags": tags})
         if volume_type:
-            volume_type = self._get_volume_type(volume_type, settings_uuid)
+            volume_type = self._get_volume_type(volume_type, tenant_uuid)
             attributes.update({"type": volume_type["url"]})
 
         return self._create_scope_via_marketplace(
