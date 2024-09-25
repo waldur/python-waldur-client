@@ -135,56 +135,62 @@ class InvoiceState(Enum):
     CANCELED = "canceled"
 
 
-class WaldurClient(object):
-    class Endpoints(object):
-        ComponentUsage = "marketplace-component-usages"
-        Configuration = "configuration"
-        Customers = "customers"
-        Flavor = "openstack-flavors"
-        FloatingIP = "openstack-floating-ips"
-        FreeIPAProfiles = "freeipa-profiles"
-        Image = "openstack-images"
-        Instance = "openstacktenant-instances"
-        Network = "openstack-networks"
-        Invoice = "invoices"
-        InvoiceItems = "invoice-items"
-        MarketplaceCategories = "marketplace-categories"
-        MarketplaceProviderOffering = "marketplace-provider-offerings"
-        MarketplaceOrder = "marketplace-orders"
-        MarketplaceProviderPlan = "marketplace-plans"
-        MarketplacePublicOffering = "marketplace-public-offerings"
-        MarketplaceResources = "marketplace-resources"
-        MarketplaceStats = "marketplace-stats"
-        MarketplaceSlurm = "marketplace-slurm"
-        MarketplaceSlurmRemote = "marketplace-slurm-remote"
-        MarketplaceRobotAccount = "marketplace-robot-accounts"
-        OfferingPermissions = "marketplace-offering-permissions"
-        OfferingUsers = "marketplace-offering-users"
-        PaymentProfiles = "payment-profiles"
-        Project = "projects"
-        ProjectTypes = "project-types"
-        Provider = "service-settings"
-        RemoteEduteams = "remote-eduteams"
-        ServiceProviders = "marketplace-service-providers"
-        SlurmAllocations = "slurm-allocations"
-        SlurmAssociations = "slurm-associations"
-        SlurmAllocationUserUsages = "slurm-allocation-user-usages"
-        Snapshot = "openstacktenant-snapshots"
-        SshKey = "keys"
-        Subnet = "openstack-subnets"
-        Tenant = "openstack-tenants"
-        TenantSecurityGroup = "openstack-security-groups"
-        TenantServerGroup = "openstack-server-groups"
-        Users = "users"
-        Roles = "roles"
-        Volume = "openstacktenant-volumes"
-        VolumeType = "openstack-volume-types"
-        SupportIssues = "support-issues"
-        SupportComments = "support-comments"
+class Endpoints:
+    Configuration = "configuration"
+    Customers = "customers"
+    FreeIPAProfiles = "freeipa-profiles"
+    Invoice = "invoices"
+    InvoiceItems = "invoice-items"
+    MarketplaceCategories = "marketplace-categories"
+    MarketplaceComponentUsage = "marketplace-component-usages"
+    MarketplaceOrder = "marketplace-orders"
+    MarketplaceProviderOffering = "marketplace-provider-offerings"
+    MarketplaceProviderPlan = "marketplace-plans"
+    MarketplacePublicOffering = "marketplace-public-offerings"
+    MarketplaceResources = "marketplace-resources"
+    MarketplaceRobotAccount = "marketplace-robot-accounts"
+    MarketplaceSlurm = "marketplace-slurm"
+    MarketplaceSlurmRemote = "marketplace-slurm-remote"
+    MarketplaceStats = "marketplace-stats"
+    MarketplaceOfferingPermissions = "marketplace-offering-permissions"
+    MarketplaceOfferingUsers = "marketplace-offering-users"
+    OpenStackFlavor = "openstack-flavors"
+    OpenStackFloatingIP = "openstack-floating-ips"
+    OpenStackImage = "openstack-images"
+    OpenStackInstance = "openstack-instances"
+    OpenStackNetwork = "openstack-networks"
+    OpenStackSecurityGroup = "openstack-security-groups"
+    OpenStackServerGroup = "openstack-server-groups"
+    OpenStackSnapshot = "openstack-snapshots"
+    OpenStackSubnet = "openstack-subnets"
+    OpenStackTenant = "openstack-tenants"
+    OpenStackVolume = "openstack-volumes"
+    OpenStackVolumeType = "openstack-volume-types"
+    PaymentProfiles = "payment-profiles"
+    Project = "projects"
+    ProjectTypes = "project-types"
+    Provider = "service-settings"
+    RemoteEduteams = "remote-eduteams"
+    Roles = "roles"
+    MarketplaceServiceProviders = "marketplace-service-providers"
+    SlurmAllocations = "slurm-allocations"
+    SlurmAllocationUserUsages = "slurm-allocation-user-usages"
+    SlurmAssociations = "slurm-associations"
+    SshKey = "keys"
+    SupportComments = "support-comments"
+    SupportIssues = "support-issues"
+    Users = "users"
 
+
+class ResourceTypes:
+    OpenStackInstance = "OpenStack.Instance"
+    OpenStackVolume = "OpenStack.Volume"
+
+
+class WaldurClient(object):
     marketplaceScopeEndpoints = {
-        "OpenStackTenant.Instance": Endpoints.Instance,
-        "OpenStackTenant.Volume": Endpoints.Volume,
+        ResourceTypes.OpenStackInstance: Endpoints.OpenStackInstance,
+        ResourceTypes.OpenStackVolume: Endpoints.OpenStackVolume,
     }
 
     def __init__(self, api_url, access_token, user_agent=None):
@@ -446,37 +452,37 @@ class WaldurClient(object):
         return self._post(url, [202], **kwargs)
 
     def _get_service_settings(self, identifier):
-        return self._get_resource(self.Endpoints.Provider, identifier)
+        return self._get_resource(Endpoints.Provider, identifier)
 
     def _get_project(self, identifier):
-        return self._get_resource(self.Endpoints.Project, identifier)
+        return self._get_resource(Endpoints.Project, identifier)
 
     def get_configuration(self):
-        return self._query_resource_list(self.Endpoints.Configuration, {})
+        return self._query_resource_list(Endpoints.Configuration, {})
 
     def get_user(self, identifier):
-        return self._get_resource(self.Endpoints.Users, identifier)
+        return self._get_resource(Endpoints.Users, identifier)
 
     def list_users(self, filters=None):
-        return self._query_resource_list(self.Endpoints.Users, filters)
+        return self._query_resource_list(Endpoints.Users, filters)
 
     def get_current_user(self):
-        url = self._build_url(self.Endpoints.Users, "me")
+        url = self._build_url(Endpoints.Users, "me")
         return self._get(url, valid_states=[200])
 
     def list_freeipa_profiles(self, filters=None):
-        return self._query_resource_list(self.Endpoints.FreeIPAProfiles, filters)
+        return self._query_resource_list(Endpoints.FreeIPAProfiles, filters)
 
     def count_users(self, **kwargs):
-        url = self._build_url(self.Endpoints.Users)
+        url = self._build_url(Endpoints.Users)
         return self._get_count(url, **kwargs)
 
     def get_roles(self, **kwargs):
-        url = self._build_url(self.Endpoints.Roles)
+        url = self._build_url(Endpoints.Roles)
         return self._get_all(url, **kwargs)
 
     def list_ssh_keys(self):
-        url = self._build_url(self.Endpoints.SshKey)
+        url = self._build_url(Endpoints.SshKey)
         return self._get_all(url)
 
     def _get_property(self, endpoint, identifier, settings_uuid):
@@ -493,7 +499,7 @@ class WaldurClient(object):
             query["uuid"] = identifier
         else:
             query["name_exact"] = identifier
-        return self._query_resource(self.Endpoints.Flavor, query)
+        return self._query_resource(Endpoints.OpenStackFlavor, query)
 
     def _get_flavor_from_params(self, cpu, ram):
         query_params = {"o": "cores,ram,disk"}
@@ -502,7 +508,9 @@ class WaldurClient(object):
         if ram:
             query_params["ram__gte"] = ram
 
-        return self._query_resource(self.Endpoints.Flavor, query_params, get_first=True)
+        return self._query_resource(
+            Endpoints.OpenStackFlavor, query_params, get_first=True
+        )
 
     def _get_image(self, identifier, tenant_uuid):
         query = {"tenant_uuid": tenant_uuid}
@@ -510,19 +518,19 @@ class WaldurClient(object):
             query["uuid"] = identifier
         else:
             query["name_exact"] = identifier
-        return self._query_resource(self.Endpoints.Image, query)
+        return self._query_resource(Endpoints.OpenStackImage, query)
 
     def _get_floating_ip(self, address):
-        return self._query_resource(self.Endpoints.FloatingIP, {"address": address})
+        return self._query_resource(Endpoints.OpenStackFloatingIP, {"address": address})
 
     def _get_subnet(self, identifier):
-        return self._get_resource(self.Endpoints.Subnet, identifier)
+        return self._get_resource(Endpoints.OpenStackSubnet, identifier)
 
     def _get_tenant_subnet_by_uuid(self, uuid):
         query = {
             "uuid": uuid,
         }
-        return self._query_resource(self.Endpoints.Subnet, query)
+        return self._query_resource(Endpoints.OpenStackSubnet, query)
 
     def _get_volume_type(self, identifier, tenant_uuid):
         query = {"tenant_uuid": tenant_uuid}
@@ -530,7 +538,7 @@ class WaldurClient(object):
             query["uuid"] = identifier
         else:
             query["name_exact"] = identifier
-        return self._query_resource(self.Endpoints.VolumeType, query)
+        return self._query_resource(Endpoints.OpenStackVolumeType, query)
 
     def _networks_to_payload(self, networks):
         """
@@ -565,11 +573,11 @@ class WaldurClient(object):
             "name_exact": name,
             "tenant_uuid": tenant_uuid,
         }
-        return self._query_resource(self.Endpoints.TenantSecurityGroup, query)
+        return self._query_resource(Endpoints.OpenStackSecurityGroup, query)
 
     def _get_tenant_security_groups(self, tenant_uuid):
         query = {"tenant_uuid": tenant_uuid}
-        return self._query_resource_list(self.Endpoints.TenantSecurityGroup, query)
+        return self._query_resource_list(Endpoints.OpenStackSecurityGroup, query)
 
     def _is_resource_ready(self, endpoint, uuid):
         resource = self._query_resource_by_uuid(endpoint, uuid)
@@ -578,7 +586,7 @@ class WaldurClient(object):
         return resource["state"] == "OK"
 
     def _create_instance(self, payload):
-        return self._create_resource(self.Endpoints.Instance, payload)
+        return self._create_resource(Endpoints.OpenStackInstance, payload)
 
     def _get_tenant(self, name, project=None):
         """
@@ -591,7 +599,7 @@ class WaldurClient(object):
         if project:
             project = self._get_project(project)
             extra = {"project_uuid": project["uuid"]}
-        return self._get_resource(self.Endpoints.Tenant, name, extra)
+        return self._get_resource(Endpoints.OpenStackTenant, name, extra)
 
     def _wait_for_resource(self, endpoint, uuid, interval, timeout):
         ready = self._is_resource_ready(endpoint, uuid)
@@ -621,34 +629,34 @@ class WaldurClient(object):
                 raise TimeoutError(message)
 
     def _instance_has_external_ip(self, uuid):
-        resource = self._query_resource_by_uuid(self.Endpoints.Instance, uuid)
+        resource = self._query_resource_by_uuid(Endpoints.OpenStackInstance, uuid)
         return len(resource["external_ips"]) > 0
 
     def list_tenants(self, filters=None):
-        endpoint = self._build_url(self.Endpoints.Tenant)
+        endpoint = self._build_url(Endpoints.OpenStackTenant)
         return self._query_resource_list(endpoint, filters)
 
     def list_networks(self, filters=None):
-        endpoint = self._build_url(self.Endpoints.Network)
+        endpoint = self._build_url(Endpoints.OpenStackNetwork)
         return self._query_resource_list(endpoint, filters)
 
     def connect_subnet(self, uuid):
         return self._execute_resource_action(
-            endpoint=self.Endpoints.Subnet,
+            endpoint=Endpoints.OpenStackSubnet,
             uuid=uuid,
             action="connect",
         )
 
     def disconnect_subnet(self, uuid):
         return self._execute_resource_action(
-            endpoint=self.Endpoints.Subnet,
+            endpoint=Endpoints.OpenStackSubnet,
             uuid=uuid,
             action="disconnect",
         )
 
     def unlink_subnet(self, uuid):
         return self._execute_resource_action(
-            endpoint=self.Endpoints.Subnet,
+            endpoint=Endpoints.OpenStackSubnet,
             uuid=uuid,
             action="unlink",
         )
@@ -695,14 +703,14 @@ class WaldurClient(object):
             )
 
         action_url = "%s/%s/create_subnet" % (
-            self.Endpoints.Network,
+            Endpoints.OpenStackNetwork,
             network_uuid,
         )
         resource = self._create_resource(action_url, payload)
 
         if wait:
             self._wait_for_resource(
-                self.Endpoints.Network, resource["uuid"], interval, timeout
+                Endpoints.OpenStackNetwork, resource["uuid"], interval, timeout
             )
 
         return resource
@@ -757,18 +765,18 @@ class WaldurClient(object):
         if unlink_subnet:
             self.unlink_subnet(uuid)
 
-        return self._update_resource(self.Endpoints.Subnet, uuid, payload)
+        return self._update_resource(Endpoints.OpenStackSubnet, uuid, payload)
 
     def list_subnets(self, filters=None):
-        endpoint = self._build_url(self.Endpoints.Subnet)
+        endpoint = self._build_url(Endpoints.OpenStackSubnet)
         return self._query_resource_list(endpoint, filters)
 
     def list_tenant_subnets(self, tenant):
         query = {"tenant": tenant}
-        return self._query_resource_list(self.Endpoints.Subnet, query)
+        return self._query_resource_list(Endpoints.OpenStackSubnet, query)
 
     def list_service_settings(self, filters=None):
-        endpoint = self._build_url(self.Endpoints.Provider)
+        endpoint = self._build_url(Endpoints.Provider)
         return self._query_resource_list(endpoint, filters)
 
     def create_security_group(
@@ -805,14 +813,14 @@ class WaldurClient(object):
             payload.update({"tags": tags})
 
         action_url = "%s/%s/create_security_group" % (
-            self.Endpoints.Tenant,
+            Endpoints.OpenStackTenant,
             tenant["uuid"],
         )
         resource = self._create_resource(action_url, payload)
 
         if wait:
             self._wait_for_resource(
-                self.Endpoints.TenantSecurityGroup, resource["uuid"], interval, timeout
+                Endpoints.OpenStackSecurityGroup, resource["uuid"], interval, timeout
             )
 
         return resource
@@ -827,7 +835,7 @@ class WaldurClient(object):
         return subnet
 
     def delete_subnet(self, uuid):
-        return self._delete_resource(self.Endpoints.Subnet, uuid)
+        return self._delete_resource(Endpoints.OpenStackSubnet, uuid)
 
     def update_security_group_description(self, security_group, description):
         payload = {
@@ -835,11 +843,11 @@ class WaldurClient(object):
             "description": description,
         }
         uuid = security_group["uuid"]
-        return self._update_resource(self.Endpoints.TenantSecurityGroup, uuid, payload)
+        return self._update_resource(Endpoints.OpenStackSecurityGroup, uuid, payload)
 
     def update_security_group_rules(self, security_group, rules):
         return self._execute_resource_action(
-            endpoint=self.Endpoints.TenantSecurityGroup,
+            endpoint=Endpoints.OpenStackSecurityGroup,
             uuid=security_group["uuid"],
             action="set_rules",
             json=rules,
@@ -862,10 +870,10 @@ class WaldurClient(object):
         return self._get_tenant_security_groups(tenant["uuid"])
 
     def delete_security_group(self, uuid):
-        return self._delete_resource(self.Endpoints.TenantSecurityGroup, uuid)
+        return self._delete_resource(Endpoints.OpenStackSecurityGroup, uuid)
 
     def _get_instance(self, instance):
-        return self._get_resource(self.Endpoints.Instance, instance)
+        return self._get_resource(Endpoints.OpenStackInstance, instance)
 
     def assign_floating_ips(
         self, instance, floating_ips, wait=True, interval=20, timeout=600
@@ -883,14 +891,14 @@ class WaldurClient(object):
             )
 
         endpoint = "%s/%s/update_floating_ips" % (
-            self.Endpoints.Instance,
+            Endpoints.OpenStackInstance,
             instance["uuid"],
         )
         response = self._create_resource(endpoint, payload, valid_state=202)
 
         if wait:
             self._wait_for_resource(
-                self.Endpoints.Instance, instance["uuid"], interval, timeout
+                Endpoints.OpenStackInstance, instance["uuid"], interval, timeout
             )
 
         return response
@@ -912,7 +920,7 @@ class WaldurClient(object):
     def get_instance(self, name, project=None):
         """
         Deprecated. Use get_instance_via_marketplace marketplace method"""
-        return self._get_project_resource(self.Endpoints.Instance, name, project)
+        return self._get_project_resource(Endpoints.OpenStackInstance, name, project)
 
     def get_marketplace_resource_scope(self, name, offering_type, project=None):
         """Get marketplace resource scope. Depending on the offering type scope type can be different.
@@ -925,7 +933,7 @@ class WaldurClient(object):
         if not is_uuid(name) and not project:
             raise ValidationError("You should specify project name if name is not UUID")
 
-        endpoint = self.Endpoints.MarketplaceResources
+        endpoint = Endpoints.MarketplaceResources
         url = self._build_url(endpoint)
         params = {
             "offering_type": offering_type,
@@ -963,12 +971,10 @@ class WaldurClient(object):
         return result[0], scope
 
     def get_marketplace_resource(self, resource_uuid):
-        return self._get_resource(
-            WaldurClient.Endpoints.MarketplaceResources, resource_uuid
-        )
+        return self._get_resource(Endpoints.MarketplaceResources, resource_uuid)
 
     def filter_marketplace_resources(self, filters=None):
-        return self._query_resource_list(self.Endpoints.MarketplaceResources, filters)
+        return self._query_resource_list(Endpoints.MarketplaceResources, filters)
 
     def list_marketplace_resources(
         self,
@@ -990,17 +996,17 @@ class WaldurClient(object):
             params["field"] = fields
 
         return self._query_resource_list(
-            self.Endpoints.MarketplaceResources,
+            Endpoints.MarketplaceResources,
             params,
         )
 
     def count_marketplace_resources(self, **kwargs):
-        url = self._build_url(self.Endpoints.MarketplaceResources)
+        url = self._build_url(Endpoints.MarketplaceResources)
         return self._get_count(url, **kwargs)
 
     def marketplace_resource_set_backend_id(self, resource_uuid: str, backend_id: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceResources,
+            Endpoints.MarketplaceResources,
             resource_uuid,
             action="set_backend_id",
         )
@@ -1011,33 +1017,33 @@ class WaldurClient(object):
         self, resource_uuid: str, report: List[ResourceReportRecord]
     ):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceResources, resource_uuid, action="submit_report"
+            Endpoints.MarketplaceResources, resource_uuid, action="submit_report"
         )
         payload = {"report": [dataclasses.asdict(record) for record in report]}
         return self._post(url, valid_states=[200], json=payload)
 
     def marketplace_resource_get_team(self, resource_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceResources, resource_uuid, action="team"
+            Endpoints.MarketplaceResources, resource_uuid, action="team"
         )
         return self._get(url, valid_states=[200])
 
     def marketplace_resource_get_plan_periods(self, resource_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceResources, resource_uuid, action="plan_periods"
+            Endpoints.MarketplaceResources, resource_uuid, action="plan_periods"
         )
         return self._get(url, valid_states=[200])
 
     def marketplace_resource_update_options(self, resource_uuid: str, options: dict):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceResources, resource_uuid, action="update_options"
+            Endpoints.MarketplaceResources, resource_uuid, action="update_options"
         )
         payload = {"options": options}
         return self._post(url, valid_states=[200], json=payload)
 
     def marketplace_public_offering_get_plans(self, offering_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplacePublicOffering, offering_uuid, action="plans"
+            Endpoints.MarketplacePublicOffering, offering_uuid, action="plans"
         )
         return self._get(url, valid_states=[200])
 
@@ -1045,7 +1051,7 @@ class WaldurClient(object):
         self, offering_uuid: str, plan_uuid: str
     ):
         url = self._build_resource_url(
-            self.Endpoints.MarketplacePublicOffering,
+            Endpoints.MarketplacePublicOffering,
             offering_uuid,
             sub_endpoint="plans",
             uid2=plan_uuid,
@@ -1054,7 +1060,7 @@ class WaldurClient(object):
 
     def update_marketplace_resource(self, resource_uuid: str, **kwargs):
         return self._patch_resource(
-            self.Endpoints.MarketplaceResources, resource_uuid, kwargs
+            Endpoints.MarketplaceResources, resource_uuid, kwargs
         )
 
     def get_instance_via_marketplace(self, name, project=None):
@@ -1064,7 +1070,7 @@ class WaldurClient(object):
         :param project: project UUID or name.
         """
         resource, instance = self.get_marketplace_resource_scope(
-            name, "OpenStackTenant.Instance", project
+            name, ResourceTypes.OpenStackInstance, project
         )
         return instance
 
@@ -1075,7 +1081,7 @@ class WaldurClient(object):
         :param project: project UUID or name.
         """
         resource, instance = self.get_marketplace_resource_scope(
-            name, "OpenStackTenant.Volume", project
+            name, ResourceTypes.OpenStackVolume, project
         )
         return instance
 
@@ -1088,14 +1094,15 @@ class WaldurClient(object):
         :param interval: interval of volume state polling in seconds.
         :param timeout: a maximum amount of time to wait for operation completion.
         """
-        self._execute_resource_action(self.Endpoints.Instance, uuid, "stop")
+        self._execute_resource_action(Endpoints.OpenStackInstance, uuid, "stop")
         if wait:
-            self._wait_for_resource(self.Endpoints.Instance, uuid, interval, timeout)
+            self._wait_for_resource(
+                Endpoints.OpenStackInstance, uuid, interval, timeout
+            )
 
     def update_instance_security_groups(
         self,
         instance_uuid,
-        settings_uuid,
         security_groups,
         wait=True,
         interval=10,
@@ -1105,34 +1112,34 @@ class WaldurClient(object):
         Update security groups for OpenStack instance and wait until operation is completed.
 
         :param instance_uuid: unique identifier of the instance
-        :param settings_uuid: unique identifier of the service settings
         :param security_groups: list of security group names
         :param wait: defines whether the client has to wait for operation completion.
         :param interval: interval of volume state polling in seconds.
         :param timeout: a maximum amount of time to wait for operation completion.
         """
         payload = []
-        tenant_uuid = self._get_service_settings(settings_uuid)["scope_uuid"]
+        instance = self._get_instance(instance_uuid)
+        tenant_uuid = instance["tenant_uuid"]
         for group in security_groups:
             security_group = self._get_tenant_security_group(tenant_uuid, group)
             payload.append({"url": security_group["url"]})
 
         self._execute_resource_action(
-            endpoint=self.Endpoints.Instance,
+            endpoint=Endpoints.OpenStackInstance,
             uuid=instance_uuid,
             action="update_security_groups",
             json=dict(security_groups=payload),
         )
         if wait:
             self._wait_for_resource(
-                self.Endpoints.Instance, instance_uuid, interval, timeout
+                Endpoints.OpenStackInstance, instance_uuid, interval, timeout
             )
 
     def get_volume(self, name, project=None):
-        return self._get_project_resource(self.Endpoints.Volume, name, project)
+        return self._get_project_resource(Endpoints.OpenStackVolume, name, project)
 
     def _get_volume(self, name):
-        return self._get_resource(self.Endpoints.Volume, name)
+        return self._get_resource(Endpoints.OpenStackVolume, name)
 
     def update_volume(self, volume, description):
         payload = {
@@ -1140,7 +1147,7 @@ class WaldurClient(object):
             "description": description,
         }
         uuid = volume["uuid"]
-        return self._update_resource(self.Endpoints.Volume, uuid, payload)
+        return self._update_resource(Endpoints.OpenStackVolume, uuid, payload)
 
     def detach_volume(self, uuid, wait=True, interval=10, timeout=600):
         """
@@ -1151,9 +1158,9 @@ class WaldurClient(object):
         :param interval: interval of volume state polling in seconds.
         :param timeout: a maximum amount of time to wait for operation completion.
         """
-        self._execute_resource_action(self.Endpoints.Volume, uuid, "detach")
+        self._execute_resource_action(Endpoints.OpenStackVolume, uuid, "detach")
         if wait:
-            self._wait_for_resource(self.Endpoints.Volume, uuid, interval, timeout)
+            self._wait_for_resource(Endpoints.OpenStackVolume, uuid, interval, timeout)
 
     def attach_volume(
         self, volume, instance, device, wait=True, interval=10, timeout=600
@@ -1169,20 +1176,22 @@ class WaldurClient(object):
         :param timeout: a maximum amount of time to wait for operation completion.
         """
         payload = dict(
-            instance=self._build_resource_url(self.Endpoints.Instance, instance),
+            instance=self._build_resource_url(Endpoints.OpenStackInstance, instance),
             device=device,
         )
         self._execute_resource_action(
-            self.Endpoints.Volume, volume, "attach", json=payload
+            Endpoints.OpenStackVolume, volume, "attach", json=payload
         )
         if wait:
-            self._wait_for_resource(self.Endpoints.Volume, volume, interval, timeout)
+            self._wait_for_resource(
+                Endpoints.OpenStackVolume, volume, interval, timeout
+            )
 
     def get_snapshot(self, name):
-        return self._get_resource(self.Endpoints.Snapshot, name)
+        return self._get_resource(Endpoints.OpenStackSnapshot, name)
 
     def delete_snapshot(self, uuid):
-        return self._delete_resource(self.Endpoints.Snapshot, uuid)
+        return self._delete_resource(Endpoints.OpenStackSnapshot, uuid)
 
     def create_snapshot(
         self,
@@ -1219,12 +1228,12 @@ class WaldurClient(object):
         if kept_until:
             payload.update({"kept_until": kept_until})
 
-        action_url = "%s/%s/snapshot" % (self.Endpoints.Volume, volume["uuid"])
+        action_url = "%s/%s/snapshot" % (Endpoints.OpenStackVolume, volume["uuid"])
         resource = self._create_resource(action_url, payload)
 
         if wait:
             self._wait_for_resource(
-                self.Endpoints.Snapshot, resource["uuid"], interval, timeout
+                Endpoints.OpenStackSnapshot, resource["uuid"], interval, timeout
             )
 
         return resource
@@ -1248,14 +1257,14 @@ class WaldurClient(object):
             payload["ports"].append({"subnet": subnet["url"]})
 
         self._execute_resource_action(
-            endpoint=self.Endpoints.Instance,
+            endpoint=Endpoints.OpenStackInstance,
             uuid=instance_uuid,
             action="update_ports",
             json=payload,
         )
         if wait:
             self._wait_for_resource(
-                self.Endpoints.Instance, instance_uuid, interval, timeout
+                Endpoints.OpenStackInstance, instance_uuid, interval, timeout
             )
 
     def _get_offering(self, offering, project=None):
@@ -1267,18 +1276,16 @@ class WaldurClient(object):
         :return: marketplace offering.
         """
         if is_uuid(offering):
-            return self._get_resource(
-                self.Endpoints.MarketplacePublicOffering, offering
-            )
+            return self._get_resource(Endpoints.MarketplacePublicOffering, offering)
         elif project:
             if is_uuid(project):
                 project_uuid = project
             else:
-                project = self._get_resource(self.Endpoints.Project, project)
+                project = self._get_resource(Endpoints.Project, project)
                 project_uuid = project["uuid"]
 
             return self._get_resource(
-                self.Endpoints.MarketplacePublicOffering,
+                Endpoints.MarketplacePublicOffering,
                 offering,
                 {"project_uuid": project_uuid, "state": ["Active", "Paused"]},
             )
@@ -1310,14 +1317,14 @@ class WaldurClient(object):
         )
 
     def get_order(self, order_uuid):
-        return self._get_resource(WaldurClient.Endpoints.MarketplaceOrder, order_uuid)
+        return self._get_resource(Endpoints.MarketplaceOrder, order_uuid)
 
     def list_orders(self, filters=None):
-        return self._query_resource_list(self.Endpoints.MarketplaceOrder, filters)
+        return self._query_resource_list(Endpoints.MarketplaceOrder, filters)
 
     def marketplace_order_approve_by_consumer(self, order_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOrder,
+            Endpoints.MarketplaceOrder,
             order_uuid,
             action="approve_by_consumer",
         )
@@ -1325,7 +1332,7 @@ class WaldurClient(object):
 
     def marketplace_order_approve_by_provider(self, order_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOrder,
+            Endpoints.MarketplaceOrder,
             order_uuid,
             action="approve_by_provider",
         )
@@ -1333,7 +1340,7 @@ class WaldurClient(object):
 
     def marketplace_order_reject_by_consumer(self, order_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOrder,
+            Endpoints.MarketplaceOrder,
             order_uuid,
             action="reject_by_consumer",
         )
@@ -1341,7 +1348,7 @@ class WaldurClient(object):
 
     def marketplace_order_reject_by_provider(self, order_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOrder,
+            Endpoints.MarketplaceOrder,
             order_uuid,
             action="reject_by_provider",
         )
@@ -1349,7 +1356,7 @@ class WaldurClient(object):
 
     def marketplace_order_cancel(self, order_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOrder,
+            Endpoints.MarketplaceOrder,
             order_uuid,
             action="cancel",
         )
@@ -1358,7 +1365,7 @@ class WaldurClient(object):
 
     def marketplace_order_set_state_executing(self, order_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOrder,
+            Endpoints.MarketplaceOrder,
             order_uuid,
             action="set_state_executing",
         )
@@ -1367,7 +1374,7 @@ class WaldurClient(object):
 
     def marketplace_order_set_state_done(self, order_uuid: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOrder,
+            Endpoints.MarketplaceOrder,
             order_uuid,
             action="set_state_done",
         )
@@ -1383,7 +1390,7 @@ class WaldurClient(object):
         payload = {"error_message": error_message, "error_traceback": error_traceback}
 
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceOrder,
+            Endpoints.MarketplaceOrder,
             order_uuid,
             action="set_state_erred",
         )
@@ -1530,8 +1537,7 @@ class WaldurClient(object):
         :return: an instance as a dictionary.
         """
         offering = self._get_offering(offering, project)
-        settings_uuid = offering["scope_uuid"]
-        tenant_uuid = self._get_service_settings(settings_uuid)["scope_uuid"]
+        tenant_uuid = offering["scope_uuid"]
 
         # Collect attributes
         if flavor:
@@ -1562,7 +1568,7 @@ class WaldurClient(object):
         if user_data:
             attributes.update({"user_data": user_data})
         if ssh_key:
-            ssh_key = self._get_resource(self.Endpoints.SshKey, ssh_key)
+            ssh_key = self._get_resource(Endpoints.SshKey, ssh_key)
             attributes.update({"ssh_public_key": ssh_key["url"]})
         if description:
             attributes["description"] = description
@@ -1576,7 +1582,7 @@ class WaldurClient(object):
             attributes.update({"data_volume_type": volume_type["url"]})
         if server_group:
             server_group = self._get_resource(
-                self.Endpoints.TenantServerGroup, server_group
+                Endpoints.OpenStackServerGroup, server_group
             )
             attributes.update({"server_group": server_group["url"]})
 
@@ -1584,7 +1590,7 @@ class WaldurClient(object):
             offering["uuid"],
             project,
             attributes,
-            scope_endpoint=self.Endpoints.Instance,
+            scope_endpoint=Endpoints.OpenStackInstance,
             interval=interval,
             timeout=timeout,
             wait=wait,
@@ -1607,7 +1613,7 @@ class WaldurClient(object):
         :param instance_uuid: instance UUID.
         """
         return self._delete_scope_via_marketplace(
-            instance_uuid, "OpenStackTenant.Instance", options=kwargs
+            instance_uuid, ResourceTypes.OpenStackInstance, options=kwargs
         )
 
     def create_volume_via_marketplace(
@@ -1640,8 +1646,7 @@ class WaldurClient(object):
         """
 
         offering = self._get_offering(offering, project)
-        settings_uuid = offering["scope_uuid"]
-        tenant_uuid = self._get_service_settings(settings_uuid)["scope_uuid"]
+        tenant_uuid = offering["scope_uuid"]
 
         # Collect attributes
         attributes = {
@@ -1660,7 +1665,7 @@ class WaldurClient(object):
             offering["uuid"],
             project,
             attributes,
-            scope_endpoint=self.Endpoints.Volume,
+            scope_endpoint=Endpoints.OpenStackVolume,
             interval=interval,
             timeout=timeout,
             wait=wait,
@@ -1672,7 +1677,7 @@ class WaldurClient(object):
 
         :param volume_uuid: volume UUID.
         """
-        return self._delete_scope_via_marketplace(volume_uuid, "OpenStackTenant.Volume")
+        return self._delete_scope_via_marketplace(volume_uuid, "OpenStack.Volume")
 
     def create_offering(self, params, check_mode=False):
         """
@@ -1683,13 +1688,13 @@ class WaldurClient(object):
         :return: new offering information
         """
         category_url = self._get_resource(
-            self.Endpoints.MarketplaceCategories, params["category"]
+            Endpoints.MarketplaceCategories, params["category"]
         )["url"]
         params["category"] = category_url
         if params["customer"]:
-            customer_url = self._get_resource(
-                self.Endpoints.Customers, params["customer"]
-            )["url"]
+            customer_url = self._get_resource(Endpoints.Customers, params["customer"])[
+                "url"
+            ]
             params["customer"] = customer_url
 
         if check_mode:
@@ -1697,19 +1702,19 @@ class WaldurClient(object):
 
         else:
             resource = self._create_resource(
-                self.Endpoints.MarketplaceProviderOffering, payload=params
+                Endpoints.MarketplaceProviderOffering, payload=params
             )
 
             return resource, True
 
     def get_customer(self, identifier, filters=None):
-        return self._get_resource(self.Endpoints.Customers, identifier, filters)
+        return self._get_resource(Endpoints.Customers, identifier, filters)
 
     def list_customers(self, filters=None):
-        return self._query_resource_list(self.Endpoints.Customers, filters)
+        return self._query_resource_list(Endpoints.Customers, filters)
 
     def count_customers(self):
-        url = self._build_url(self.Endpoints.Customers)
+        url = self._build_url(Endpoints.Customers)
         return self._get_count(url)
 
     def create_customer(
@@ -1755,7 +1760,7 @@ class WaldurClient(object):
             "postal": postal,
             "vat_code": vat_code,
         }
-        return self._create_resource(self.Endpoints.Customers, payload=payload)
+        return self._create_resource(Endpoints.Customers, payload=payload)
 
     def delete_customer(self, customer):
         """
@@ -1765,14 +1770,14 @@ class WaldurClient(object):
         :return: deleted customer information
         """
         if is_uuid(customer):
-            return self._delete_resource(self.Endpoints.Customers, customer)
+            return self._delete_resource(Endpoints.Customers, customer)
         return self._delete_resource_by_url(customer)
 
     def list_projects(self, filters=None):
-        return self._query_resource_list(self.Endpoints.Project, filters)
+        return self._query_resource_list(Endpoints.Project, filters)
 
     def count_projects(self):
-        url = self._build_url(self.Endpoints.Project)
+        url = self._build_url(Endpoints.Project)
         return self._get_count(url)
 
     def _serialize_project(
@@ -1781,7 +1786,7 @@ class WaldurClient(object):
         **kwargs,
     ):
         type_url = type_uuid and self._build_resource_url(
-            self.Endpoints.ProjectTypes, type_uuid
+            Endpoints.ProjectTypes, type_uuid
         )
         return {
             **kwargs,
@@ -1791,16 +1796,14 @@ class WaldurClient(object):
     def create_project(self, customer_uuid, name, **kwargs):
         payload = self._serialize_project(name=name, **kwargs)
         payload["customer"] = self._build_resource_url(
-            self.Endpoints.Customers, customer_uuid
+            Endpoints.Customers, customer_uuid
         )
 
-        return self._create_resource(self.Endpoints.Project, payload=payload)
+        return self._create_resource(Endpoints.Project, payload=payload)
 
     def update_project(self, project_uuid, **kwargs):
         payload = self._serialize_project(**kwargs)
-        return self._patch_resource(
-            self.Endpoints.Project, project_uuid, payload=payload
-        )
+        return self._patch_resource(Endpoints.Project, project_uuid, payload=payload)
 
     def delete_project(self, project):
         """
@@ -1810,27 +1813,23 @@ class WaldurClient(object):
         :return: deleted project information
         """
         if is_uuid(project):
-            return self._delete_resource(self.Endpoints.Project, project)
+            return self._delete_resource(Endpoints.Project, project)
         return self._delete_resource_by_url(project)
 
     def list_marketplace_provider_offerings(self, filters=None):
-        return self._query_resource_list(
-            self.Endpoints.MarketplaceProviderOffering, filters
-        )
+        return self._query_resource_list(Endpoints.MarketplaceProviderOffering, filters)
 
     def list_marketplace_public_offerings(self, filters=None):
-        return self._query_resource_list(
-            self.Endpoints.MarketplacePublicOffering, filters
-        )
+        return self._query_resource_list(Endpoints.MarketplacePublicOffering, filters)
 
     def get_marketplace_provider_offering(self, offering_uuid):
         return self._query_resource_by_uuid(
-            self.Endpoints.MarketplaceProviderOffering, offering_uuid
+            Endpoints.MarketplaceProviderOffering, offering_uuid
         )
 
     def get_marketplace_public_offering(self, offering_uuid):
         return self._query_resource_by_uuid(
-            self.Endpoints.MarketplacePublicOffering, offering_uuid
+            Endpoints.MarketplacePublicOffering, offering_uuid
         )
 
     def marketplace_resource_create_order(
@@ -1845,9 +1844,9 @@ class WaldurClient(object):
         attributes = attributes or {}
         limits = limits or {}
         payload = {
-            "project": self._build_resource_url(self.Endpoints.Project, project_uuid),
+            "project": self._build_resource_url(Endpoints.Project, project_uuid),
             "offering": self._build_resource_url(
-                self.Endpoints.MarketplacePublicOffering, offering_uuid
+                Endpoints.MarketplacePublicOffering, offering_uuid
             ),
             "attributes": attributes,
             "limits": limits,
@@ -1857,7 +1856,7 @@ class WaldurClient(object):
 
         if plan_uuid:
             payload["plan"] = self._build_resource_url(
-                self.Endpoints.MarketplacePublicOffering,
+                Endpoints.MarketplacePublicOffering,
                 offering_uuid,
                 sub_endpoint="plans",
                 uid2=plan_uuid,
@@ -1866,7 +1865,7 @@ class WaldurClient(object):
         if callback_url:
             payload["callback_url"] = callback_url
 
-        return self._create_resource(self.Endpoints.MarketplaceOrder, payload=payload)
+        return self._create_resource(Endpoints.MarketplaceOrder, payload=payload)
 
     def marketplace_resource_update_limits_order(
         self, resource_uuid, limits, callback_url=None
@@ -1875,7 +1874,7 @@ class WaldurClient(object):
         if callback_url:
             payload["callback_url"] = callback_url
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceResources, resource_uuid, action="update_limits"
+            Endpoints.MarketplaceResources, resource_uuid, action="update_limits"
         )
         return self._post(url, valid_states=[200], json=payload)["order_uuid"]
 
@@ -1889,7 +1888,7 @@ class WaldurClient(object):
                 options = {}
             options["callback_url"] = callback_url
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceResources, resource_uuid, action="terminate"
+            Endpoints.MarketplaceResources, resource_uuid, action="terminate"
         )
         return self._post(url, valid_states=[200], json=options)["order_uuid"]
 
@@ -1904,13 +1903,13 @@ class WaldurClient(object):
         if state is not None:
             query_params["state"] = state.value
         return self._query_resource(
-            self.Endpoints.Invoice,
+            Endpoints.Invoice,
             query_params,
         )
 
     def invoice_set_backend_id(self, invoice_uuid: str, backend_id: str):
         url = self._build_resource_url(
-            self.Endpoints.Invoice,
+            Endpoints.Invoice,
             invoice_uuid,
             action="set_backend_id",
         )
@@ -1919,7 +1918,7 @@ class WaldurClient(object):
 
     def invoice_set_payment_url(self, invoice_uuid: str, payment_url: str):
         url = self._build_resource_url(
-            self.Endpoints.Invoice,
+            Endpoints.Invoice,
             invoice_uuid,
             action="set_payment_url",
         )
@@ -1928,7 +1927,7 @@ class WaldurClient(object):
 
     def invoice_set_reference_number(self, invoice_uuid: str, reference_number: str):
         url = self._build_resource_url(
-            self.Endpoints.Invoice,
+            Endpoints.Invoice,
             invoice_uuid,
             action="set_reference_number",
         )
@@ -1936,20 +1935,20 @@ class WaldurClient(object):
         return self._post(url, valid_states=[200], json=payload)
 
     def invoice_set_state_paid(self, invoice_uuid: str):
-        url = self._build_resource_url(self.Endpoints.Invoice, invoice_uuid, "paid")
+        url = self._build_resource_url(Endpoints.Invoice, invoice_uuid, "paid")
         return self._post(url, valid_states=[200])
 
     def list_invoice_items(self, filters=None):
-        return self._query_resource_list(self.Endpoints.InvoiceItems, filters)
+        return self._query_resource_list(Endpoints.InvoiceItems, filters)
 
     def list_payment_profiles(self, filters=None):
         if "payment_type" in filters:
             filters["payment_type"] = filters["payment_type"].value
-        return self._query_resource_list(self.Endpoints.PaymentProfiles, filters)
+        return self._query_resource_list(Endpoints.PaymentProfiles, filters)
 
     def list_component_usages(self, resource_uuid, date_after=None, date_before=None):
         return self._query_resource_list(
-            self.Endpoints.ComponentUsage,
+            Endpoints.MarketplaceComponentUsage,
             {
                 "resource_uuid": resource_uuid,
                 "date_after": date_after,
@@ -1963,7 +1962,7 @@ class WaldurClient(object):
         usages: List[ComponentUsage] = [],
         resource_uuid=None,
     ):
-        url = self._build_url(f"{self.Endpoints.ComponentUsage}/set_usage/")
+        url = self._build_url(f"{Endpoints.MarketplaceComponentUsage}/set_usage/")
         payload = {
             "usages": [dataclasses.asdict(usage) for usage in usages],
         }
@@ -2004,7 +2003,7 @@ class WaldurClient(object):
 
     def get_remote_eduteams_user(self, cuid):
         return self._create_resource(
-            self.Endpoints.RemoteEduteams,
+            Endpoints.RemoteEduteams,
             {
                 "cuid": cuid,
             },
@@ -2157,11 +2156,11 @@ class WaldurClient(object):
     ):
         if is_uuid(offering):
             offering = self._build_resource_url(
-                self.Endpoints.MarketplaceProviderOffering, offering
+                Endpoints.MarketplaceProviderOffering, offering
             )
 
         if is_uuid(user):
-            user = self._build_resource_url(self.Endpoints.Users, user)
+            user = self._build_resource_url(Endpoints.Users, user)
 
         payload = {
             "offering": offering,
@@ -2171,13 +2170,13 @@ class WaldurClient(object):
         if username is not None:
             payload["username"] = username
 
-        return self._create_resource(self.Endpoints.OfferingUsers, payload)
+        return self._create_resource(Endpoints.MarketplaceOfferingUsers, payload)
 
     def set_offerings_username(
         self, service_provider_uuid: str, user_uuid: str, username: str
     ):
         endpoint = self._build_resource_url(
-            self.Endpoints.ServiceProviders,
+            Endpoints.MarketplaceServiceProviders,
             service_provider_uuid,
             "set_offerings_username",
         )
@@ -2188,26 +2187,26 @@ class WaldurClient(object):
         return self._post(endpoint, valid_states=[201], json=payload)
 
     def list_remote_offering_users(self, filters=None):
-        return self._query_resource_list(self.Endpoints.OfferingUsers, filters)
+        return self._query_resource_list(Endpoints.MarketplaceOfferingUsers, filters)
 
     def list_service_providers(self, filters=None):
-        return self._query_resource_list(self.Endpoints.ServiceProviders, filters)
+        return self._query_resource_list(Endpoints.MarketplaceServiceProviders, filters)
 
     def list_service_provider_users(self, service_provider_uuid):
         endpoint = self._build_resource_url(
-            self.Endpoints.ServiceProviders, service_provider_uuid, "users"
+            Endpoints.MarketplaceServiceProviders, service_provider_uuid, "users"
         )
         return self._query_resource_list(endpoint, None)
 
     def list_service_provider_projects(self, service_provider_uuid):
         endpoint = self._build_resource_url(
-            self.Endpoints.ServiceProviders, service_provider_uuid, "projects"
+            Endpoints.MarketplaceServiceProviders, service_provider_uuid, "projects"
         )
         return self._query_resource_list(endpoint, None)
 
     def list_service_provider_project_permissions(self, service_provider_uuid):
         endpoint = self._build_resource_url(
-            self.Endpoints.ServiceProviders,
+            Endpoints.MarketplaceServiceProviders,
             service_provider_uuid,
             "project_permissions",
         )
@@ -2215,12 +2214,12 @@ class WaldurClient(object):
 
     def list_service_provider_ssh_keys(self, service_provider_uuid):
         endpoint = self._build_resource_url(
-            self.Endpoints.ServiceProviders, service_provider_uuid, "keys"
+            Endpoints.MarketplaceServiceProviders, service_provider_uuid, "keys"
         )
         return self._query_resource_list(endpoint, None)
 
     def get_marketplace_stats(self, endpoint):
-        endpoint = self._build_url(self.Endpoints.MarketplaceStats, endpoint)
+        endpoint = self._build_url(Endpoints.MarketplaceStats, endpoint)
         return self._make_request("get", endpoint, valid_states=[200])
 
     def get_slurm_allocation(self, uuid: str):
@@ -2228,16 +2227,16 @@ class WaldurClient(object):
             raise ValidationError(
                 "The UUID of SLURM allocation has unexpected format: %s" % uuid
             )
-        return self._get_resource(self.Endpoints.SlurmAllocations, uuid)
+        return self._get_resource(Endpoints.SlurmAllocations, uuid)
 
     def list_slurm_allocations(self, filters=None):
-        return self._query_resource_list(self.Endpoints.SlurmAllocations, filters)
+        return self._query_resource_list(Endpoints.SlurmAllocations, filters)
 
     def set_slurm_allocation_state(
         self, marketplace_resource_uuid: str, state: SlurmAllocationState
     ):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceSlurmRemote,
+            Endpoints.MarketplaceSlurmRemote,
             marketplace_resource_uuid,
             "set_state",
         )
@@ -2248,7 +2247,7 @@ class WaldurClient(object):
         self, marketplace_resource_uuid: str, backend_id: str
     ):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceSlurmRemote,
+            Endpoints.MarketplaceSlurmRemote,
             marketplace_resource_uuid,
             "set_backend_id",
         )
@@ -2256,11 +2255,11 @@ class WaldurClient(object):
         self._post(url, valid_states=[200], json=payload)
 
     def list_slurm_associations(self, filters=None):
-        return self._query_resource_list(self.Endpoints.SlurmAssociations, filters)
+        return self._query_resource_list(Endpoints.SlurmAssociations, filters)
 
     def create_slurm_association(self, marketplace_resource_uuid: str, username: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceSlurmRemote,
+            Endpoints.MarketplaceSlurmRemote,
             marketplace_resource_uuid,
             "create_association",
         )
@@ -2269,7 +2268,7 @@ class WaldurClient(object):
 
     def delete_slurm_association(self, marketplace_resource_uuid: str, username: str):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceSlurmRemote,
+            Endpoints.MarketplaceSlurmRemote,
             marketplace_resource_uuid,
             "delete_association",
         )
@@ -2287,22 +2286,20 @@ class WaldurClient(object):
                 % marketplace_resource_uuid
             )
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceSlurmRemote,
+            Endpoints.MarketplaceSlurmRemote,
             marketplace_resource_uuid,
             "set_limits",
         )
         return self._post(url, valid_states=[200], json=limits)
 
     def list_slurm_allocation_user_usage(self, filters=None):
-        return self._query_resource_list(
-            self.Endpoints.SlurmAllocationUserUsages, filters
-        )
+        return self._query_resource_list(Endpoints.SlurmAllocationUserUsages, filters)
 
     def create_offering_component(
         self, offering_uuid: str, component: OfferingComponent
     ):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceProviderOffering,
+            Endpoints.MarketplaceProviderOffering,
             offering_uuid,
             "create_offering_component",
         )
@@ -2316,7 +2313,7 @@ class WaldurClient(object):
         self, offering_uuid: str, component: OfferingComponent
     ):
         url = self._build_resource_url(
-            self.Endpoints.MarketplaceProviderOffering,
+            Endpoints.MarketplaceProviderOffering,
             offering_uuid,
             "update_offering_component",
         )
@@ -2333,13 +2330,13 @@ class WaldurClient(object):
             "remote_id": remote_id,
         }
         payload.update(kwargs)
-        return self._create_resource(self.Endpoints.SupportIssues, payload=payload)
+        return self._create_resource(Endpoints.SupportIssues, payload=payload)
 
     def list_support_issues(self, filters=None):
-        return self._query_resource_list(self.Endpoints.SupportIssues, filters)
+        return self._query_resource_list(Endpoints.SupportIssues, filters)
 
     def list_support_comments(self, filters=None):
-        return self._query_resource_list(self.Endpoints.SupportComments, filters)
+        return self._query_resource_list(Endpoints.SupportComments, filters)
 
     def create_support_comments(self, issue_uuid, description, remote_id, **kwargs):
         payload = {
@@ -2348,13 +2345,11 @@ class WaldurClient(object):
         }
         payload.update(kwargs)
         return self._create_resource(
-            self.Endpoints.SupportIssues + f"/{issue_uuid}/comment/", payload=payload
+            Endpoints.SupportIssues + f"/{issue_uuid}/comment/", payload=payload
         )
 
     def list_robot_account(self, filters=None):
-        return self._query_resource_list(
-            self.Endpoints.MarketplaceRobotAccount, filters
-        )
+        return self._query_resource_list(Endpoints.MarketplaceRobotAccount, filters)
 
     def create_robot_account(self, resource, type, users=[], username="", keys=[]):
         params = {
@@ -2366,29 +2361,27 @@ class WaldurClient(object):
         }
         if is_uuid(resource):
             params["resource"] = self._build_url(
-                self.Endpoints.MarketplaceResources + "/" + resource
+                Endpoints.MarketplaceResources + "/" + resource
             )
         if users:
             for idx, user in enumerate(users):
                 if is_uuid(user):
-                    params["users"][idx] = self._build_url(
-                        self.Endpoints.Users + "/" + user
-                    )
+                    params["users"][idx] = self._build_url(Endpoints.Users + "/" + user)
         return self._create_resource(
-            self.Endpoints.MarketplaceRobotAccount,
+            Endpoints.MarketplaceRobotAccount,
             payload=params,
         )
 
     def update_robot_account(self, account_uuid, payload):
         return self._patch_resource(
-            self.Endpoints.MarketplaceRobotAccount,
+            Endpoints.MarketplaceRobotAccount,
             account_uuid,
             payload,
         )
 
     def delete_robot_account(self, account_uuid):
         return self._delete_resource(
-            self.Endpoints.MarketplaceRobotAccount,
+            Endpoints.MarketplaceRobotAccount,
             account_uuid,
         )
 

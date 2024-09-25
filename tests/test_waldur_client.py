@@ -194,7 +194,7 @@ class InstanceCreateBaseTest(BaseWaldurClientTest):
             "external_ips": ["142.124.1.50"],
         }
 
-        post_url = "%s/openstacktenant-instances/" % self.api_url
+        post_url = "%s/openstack-instances/" % self.api_url
         mapping = {
             "project": "projects",
             "image": "openstack-images",
@@ -213,10 +213,10 @@ class InstanceCreateBaseTest(BaseWaldurClientTest):
             json=[security_group],
         )
         responses.add(responses.POST, post_url, json=self.instance, status=201)
-        status_url = self._get_url("openstacktenant-instances")
+        status_url = self._get_url("openstack-instances")
         responses.add(responses.GET, status_url, json=[self.instance])
 
-        self.instance_url = "%s/openstacktenant-instances/%s/" % (
+        self.instance_url = "%s/openstack-instances/%s/" % (
             self.api_url,
             self.instance["uuid"],
         )
@@ -236,18 +236,12 @@ class InstanceCreateViaMarketplaceTest(InstanceCreateBaseTest):
         self.params["offering"] = "offering"
 
         offering = self._get_object("offering")
-        offering["scope_uuid"] = "settings_uuid"
-        offering["type"] = "OpenStackTenant.Instance"
+        offering["scope_uuid"] = "tenant_uuid"
+        offering["type"] = "OpenStack.Instance"
         responses.add(
             responses.GET,
             self._get_url("marketplace-public-offerings"),
             json=[offering],
-        )
-
-        responses.add(
-            responses.GET,
-            self._get_url("service-settings"),
-            json=[{"scope_uuid": "tenant_uuid"}],
         )
 
         self.order = {
@@ -411,7 +405,7 @@ class InstanceStopTest(BaseWaldurClientTest):
     def setUp(self):
         super(InstanceStopTest, self).setUp()
         self.expected_url = (
-            "http://example.com:8000/api/openstacktenant-instances/"
+            "http://example.com:8000/api/openstack-instances/"
             "6b6e60870ad64085aadcdcbc1fd84a7e/stop/"
         )
 
@@ -522,7 +516,7 @@ class VolumeDetachTest(BaseWaldurClientTest):
     def setUp(self):
         super(VolumeDetachTest, self).setUp()
         self.expected_url = (
-            "http://example.com:8000/api/openstacktenant-volumes/"
+            "http://example.com:8000/api/openstack-volumes/"
             "6b6e60870ad64085aadcdcbc1fd84a7e/detach/"
         )
 
@@ -541,7 +535,7 @@ class VolumeAttachTest(BaseWaldurClientTest):
     def setUp(self):
         super(VolumeAttachTest, self).setUp()
         self.expected_url = (
-            "http://example.com:8000/api/openstacktenant-volumes/" "volume_uuid/attach/"
+            "http://example.com:8000/api/openstack-volumes/" "volume_uuid/attach/"
         )
 
     @responses.activate
@@ -562,7 +556,7 @@ class VolumeAttachTest(BaseWaldurClientTest):
         # Assert
         actual = json.loads(responses.calls[0].request.body.decode("utf-8"))
         expected = {
-            "instance": "http://example.com:8000/api/openstacktenant-instances/instance_uuid/",
+            "instance": "http://example.com:8000/api/openstack-instances/instance_uuid/",
             "device": "/dev/vdb",
         }
         self.assertEqual(expected, actual)
