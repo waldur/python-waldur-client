@@ -269,6 +269,16 @@ class WaldurClient(object):
         except requests.exceptions.RequestException as error:
             raise WaldurClientException(str(error))
 
+        if method == "post" and response.status_code in [301, 302, 303, 307, 308]:
+            redirect_url = response.headers["Location"]
+            return self._make_request(
+                method,
+                redirect_url,
+                valid_states,
+                retry_count,
+                **kwargs,
+            )
+
         if response.status_code not in valid_states:
             # a special treatment for 409 response, which can be due to async operations
             if response.status_code == 409:
@@ -340,7 +350,9 @@ class WaldurClient(object):
         return self._make_request("head", url, valid_states=[200], **kwargs)
 
     def _post(self, url, valid_states, **kwargs):
-        return self._make_request("post", url, valid_states, **kwargs)
+        return self._make_request(
+            "post", url, valid_states, allow_redirects=False, **kwargs
+        )
 
     def _put(self, url, valid_states, **kwargs):
         return self._make_request("put", url, valid_states, **kwargs)
