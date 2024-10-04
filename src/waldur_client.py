@@ -148,6 +148,7 @@ class Endpoints:
     MarketplaceProviderPlan = "marketplace-plans"
     MarketplacePublicOffering = "marketplace-public-offerings"
     MarketplaceResources = "marketplace-resources"
+    MarketplaceProviderResources = "marketplace-provider-resources"
     MarketplaceRobotAccount = "marketplace-robot-accounts"
     MarketplaceSlurm = "marketplace-slurm"
     MarketplaceSlurmRemote = "marketplace-slurm-remote"
@@ -1016,27 +1017,31 @@ class WaldurClient(object):
         url = self._build_url(Endpoints.MarketplaceResources)
         return self._get_count(url, **kwargs)
 
-    def marketplace_resource_set_backend_id(self, resource_uuid: str, backend_id: str):
+    def marketplace_provider_resource_set_backend_id(
+        self, resource_uuid: str, backend_id: str
+    ):
         url = self._build_resource_url(
-            Endpoints.MarketplaceResources,
+            Endpoints.MarketplaceProviderResources,
             resource_uuid,
             action="set_backend_id",
         )
         payload = {"backend_id": backend_id}
         return self._post(url, valid_states=[200], json=payload)
 
-    def marketplace_resource_submit_report(
+    def marketplace_provider_resource_submit_report(
         self, resource_uuid: str, report: List[ResourceReportRecord]
     ):
         url = self._build_resource_url(
-            Endpoints.MarketplaceResources, resource_uuid, action="submit_report"
+            Endpoints.MarketplaceProviderResources,
+            resource_uuid,
+            action="submit_report",
         )
         payload = {"report": [dataclasses.asdict(record) for record in report]}
         return self._post(url, valid_states=[200], json=payload)
 
-    def marketplace_resource_get_team(self, resource_uuid: str):
+    def marketplace_provider_resource_get_team(self, resource_uuid: str):
         url = self._build_resource_url(
-            Endpoints.MarketplaceResources, resource_uuid, action="team"
+            Endpoints.MarketplaceProviderResources, resource_uuid, action="team"
         )
         return self._get(url, valid_states=[200])
 
