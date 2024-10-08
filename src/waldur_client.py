@@ -1058,6 +1058,16 @@ class WaldurClient(object):
         payload = {"options": options}
         return self._post(url, valid_states=[200], json=payload)
 
+    def marketplace_provider_resource_complete_downscaling_request(
+        self, resource_uuid: str
+    ):
+        url = self._build_resource_url(
+            Endpoints.MarketplaceProviderResources,
+            resource_uuid,
+            "downscaling_request_completed",
+        )
+        self._post(url, valid_states=[200])
+
     def marketplace_public_offering_get_plans(self, offering_uuid: str):
         url = self._build_resource_url(
             Endpoints.MarketplacePublicOffering, offering_uuid, action="plans"
