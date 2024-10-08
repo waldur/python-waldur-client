@@ -13,3 +13,10 @@ repos:
         args:
           - --fix
           - --exit-non-zero-on-fix
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.2
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-requests, types-urllib3]
+        args: [--strict]

@@ -14,6 +14,7 @@ class BaseWaldurClientTest(unittest.TestCase):
         self.access_token = "token"
         self.client = WaldurClient(self.api_url, self.access_token)
         self.tenant = {"name": "tenant", "uuid": str(uuid.uuid4())}
+        self.params = {}
 
     def _get_url(self, endpoint, params=None):
         url = "%(url)s/%(endpoint)s/"

@@ -2,20 +2,25 @@ import dataclasses
 import os
 import time
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
+import typing
 from urllib.parse import urljoin
 from uuid import UUID
 
 import requests
+import urllib3
 from urllib3.exceptions import InsecureRequestWarning
 
-verify_ssl = os.environ.get("REQUESTS_VERIFY_SSL", "true")
 
-verify_ssl = verify_ssl.lower() not in ["false", "no", "0"]
+def parse_bool(value: str):
+    return value.lower() not in ["false", "no", "0"]
+
+
+verify_ssl = parse_bool(os.environ.get("REQUESTS_VERIFY_SSL", "true"))
 
 requests_timeout = int(os.environ.get("REQUESTS_TIMEOUT", 15))
 
-requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+urllib3.disable_warnings(category=InsecureRequestWarning)
 
 
 def is_uuid(value):
@@ -98,12 +103,12 @@ class OfferingComponent:
     uuid: str = ""
     description: str = ""
     limit_period: str = ""
-    limit_amount: int = None
+    limit_amount: typing.Optional[int] = None
     article_code: str = ""
-    max_value: int = None
-    min_value: int = None
-    is_boolean: bool = None
-    default_limit: int = None
+    max_value: typing.Optional[int] = None
+    min_value: typing.Optional[int] = None
+    is_boolean: typing.Optional[bool] = None
+    default_limit: typing.Optional[int] = None
 
 
 class ResourceState(Enum):
@@ -292,8 +297,7 @@ class WaldurClient(object):
                     prev_response_data=response.text,
                     **kwargs,
                 )
-            error = self._parse_error(response)
-            raise WaldurClientException(error)
+            raise WaldurClientException(self._parse_error(response))
 
         if method == "head":
             return response
@@ -315,8 +319,7 @@ class WaldurClient(object):
             raise WaldurClientException(str(error))
 
         if response.status_code != 200:
-            error = self._parse_error(response)
-            raise WaldurClientException(error)
+            raise WaldurClientException(self._parse_error(response))
         result = response.json()
         if "Link" not in response.headers:
             return result
@@ -333,8 +336,7 @@ class WaldurClient(object):
                 raise WaldurClientException(str(error))
 
             if response.status_code != 200:
-                error = self._parse_error(response)
-                raise WaldurClientException(error)
+                raise WaldurClientException(self._parse_error(response))
 
             result += response.json()
 
@@ -892,7 +894,7 @@ class WaldurClient(object):
         self, instance, floating_ips, wait=True, interval=20, timeout=600
     ):
         instance = self._get_instance(instance)
-        payload = {
+        payload: typing.Dict[str, typing.Any] = {
             "floating_ips": [],
         }
         for ip in floating_ips:
@@ -991,12 +993,12 @@ class WaldurClient(object):
 
     def list_marketplace_resources(
         self,
-        provider_uuid: str = None,
-        state: str = None,
-        offering_uuid: str = None,
-        fields: List[str] = None,
+        provider_uuid: typing.Optional[str] = None,
+        state: typing.Optional[str] = None,
+        offering_uuid: typing.Optional[str] = None,
+        fields: typing.Optional[typing.List[str]] = None,
     ):
-        params = {}
+        params: typing.Dict[str, typing.Any] = {}
         if provider_uuid is not None:
             params["provider_uuid"] = provider_uuid
         if state is not None:
@@ -1029,7 +1031,7 @@ class WaldurClient(object):
         return self._post(url, valid_states=[200], json=payload)
 
     def marketplace_provider_resource_submit_report(
-        self, resource_uuid: str, report: List[ResourceReportRecord]
+        self, resource_uuid: str, report: typing.List[ResourceReportRecord]
     ):
         url = self._build_resource_url(
             Endpoints.MarketplaceProviderResources,
@@ -1051,7 +1053,9 @@ class WaldurClient(object):
         )
         return self._get(url, valid_states=[200])
 
-    def marketplace_resource_update_options(self, resource_uuid: str, options: dict):
+    def marketplace_resource_update_options(
+        self, resource_uuid: str, options: typing.Dict[str, typing.Any]
+    ):
         url = self._build_resource_url(
             Endpoints.MarketplaceResources, resource_uuid, action="update_options"
         )
@@ -1278,7 +1282,7 @@ class WaldurClient(object):
         :param timeout: a maximum amount of time to wait for operation completion.
         """
 
-        payload = {"ports": []}
+        payload: typing.Dict[str, typing.Any] = {"ports": []}
         for subnet in subnet_set:
             subnet = self._get_subnet(subnet)
             payload["ports"].append({"subnet": subnet["url"]})
@@ -1985,12 +1989,12 @@ class WaldurClient(object):
 
     def create_component_usages(
         self,
-        plan_period_uuid: str = None,
-        usages: List[ComponentUsage] = [],
-        resource_uuid=None,
+        plan_period_uuid: typing.Optional[str] = None,
+        usages: typing.List[ComponentUsage] = [],
+        resource_uuid: typing.Optional[str] = None,
     ):
         url = self._build_url(f"{Endpoints.MarketplaceComponentUsage}/set_usage/")
-        payload = {
+        payload: typing.Dict[str, typing.Any] = {
             "usages": [dataclasses.asdict(usage) for usage in usages],
         }
 
@@ -2179,7 +2183,7 @@ class WaldurClient(object):
         )
 
     def create_remote_offering_user(
-        self, offering: str, user: str, username: str = None
+        self, offering: str, user: str, username: typing.Optional[str] = None
     ):
         if is_uuid(offering):
             offering = self._build_resource_url(
@@ -2305,7 +2309,7 @@ class WaldurClient(object):
     def set_slurm_allocation_limits(
         self,
         marketplace_resource_uuid: str,
-        limits: dict,
+        limits: typing.Dict[str, int],
     ):
         if not is_uuid(marketplace_resource_uuid):
             raise ValidationError(
