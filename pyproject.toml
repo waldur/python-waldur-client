@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "python-waldur-client"
+version = "0.1.0"
+description = "REST client for the Waldur API."
+authors = ["OpenNode Team <info@opennodecloud.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://waldur.com"
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+packages = [{ include = "waldur_client" }]
+
+[tool.poetry.dependencies]
+python = ">=3.9"
+requests = ">=2.6.0"
+typing-extensions = "^4.12.2"
+
+[tool.poetry.dev-dependencies]
+pytest = ">=6.2.5"
+responses = ">=0.21.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+mypy_path = ["./src/"]
+disable_error_code = ["no-untyped-def", "no-untyped-call"]
+explicit_package_bases = true
+ignore_missing_imports = true

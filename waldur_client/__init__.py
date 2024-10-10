@@ -1,8 +1,8 @@
-import dataclasses
 import os
 import time
 from enum import Enum
-from typing import Optional
+from typing import List, Optional, TypedDict
+from typing_extensions import Required, NotRequired
 import typing
 from urllib.parse import urljoin
 from uuid import UUID
@@ -65,16 +65,14 @@ class InvalidStateError(WaldurClientException):
     pass
 
 
-@dataclasses.dataclass
-class ComponentUsage:
+class ComponentUsage(TypedDict):
     # TODO: rename to 'component_type' after https://opennode.atlassian.net/browse/WAL-4259 is done
     type: str
     amount: int
-    description: str = ""
+    description: str
 
 
-@dataclasses.dataclass
-class ResourceReportRecord:
+class ResourceReportRecord(TypedDict):
     header: str
     body: str
 
@@ -93,22 +91,50 @@ class OfferingComponentLimitPeriod:
     TOTAL = "total"
 
 
-@dataclasses.dataclass
-class OfferingComponent:
-    # The required fields are billing_type, type, name and measured_unit only
-    billing_type: str
-    type: str
-    name: str
-    measured_unit: str
-    uuid: str = ""
-    description: str = ""
-    limit_period: str = ""
-    limit_amount: typing.Optional[int] = None
-    article_code: str = ""
-    max_value: typing.Optional[int] = None
-    min_value: typing.Optional[int] = None
-    is_boolean: typing.Optional[bool] = None
-    default_limit: typing.Optional[int] = None
+class OfferingComponent(TypedDict):
+    billing_type: Required[str]
+    type: Required[str]
+    name: Required[str]
+    measured_unit: Required[str]
+    uuid: str
+    description: str
+    limit_period: str
+    limit_amount: int
+    article_code: str
+    max_value: int
+    min_value: int
+    is_boolean: bool
+    default_limit: int
+
+
+class AssignFloatingIpPair(TypedDict):
+    url: str
+    subnet: str
+
+
+class AssignFloatingIpPayload(TypedDict):
+    floating_ips: List[AssignFloatingIpPair]
+
+
+class CreateComponentUsagePayload(TypedDict):
+    usages: List[ComponentUsage]
+    plan_period: NotRequired[str]
+    resource: NotRequired[str]
+
+
+class ListMarketplaceResourcesPayload(TypedDict):
+    provider_uuid: NotRequired[str]
+    state: NotRequired[str]
+    offering_uuid: NotRequired[str]
+    field: NotRequired[List[str]]
+
+
+class UpdateInstancePortItem(TypedDict):
+    subnet: str
+
+
+class UpdateInstancePortsPayload(TypedDict):
+    ports: List[UpdateInstancePortItem]
 
 
 class ResourceState(Enum):
@@ -894,7 +920,7 @@ class WaldurClient(object):
         self, instance, floating_ips, wait=True, interval=20, timeout=600
     ):
         instance = self._get_instance(instance)
-        payload: typing.Dict[str, typing.Any] = {
+        payload: AssignFloatingIpPayload = {
             "floating_ips": [],
         }
         for ip in floating_ips:
@@ -993,12 +1019,12 @@ class WaldurClient(object):
 
     def list_marketplace_resources(
         self,
-        provider_uuid: typing.Optional[str] = None,
-        state: typing.Optional[str] = None,
-        offering_uuid: typing.Optional[str] = None,
-        fields: typing.Optional[typing.List[str]] = None,
+        provider_uuid: Optional[str] = None,
+        state: Optional[str] = None,
+        offering_uuid: Optional[str] = None,
+        fields: Optional[List[str]] = None,
     ):
-        params: typing.Dict[str, typing.Any] = {}
+        params: ListMarketplaceResourcesPayload = {}
         if provider_uuid is not None:
             params["provider_uuid"] = provider_uuid
         if state is not None:
@@ -1031,14 +1057,14 @@ class WaldurClient(object):
         return self._post(url, valid_states=[200], json=payload)
 
     def marketplace_provider_resource_submit_report(
-        self, resource_uuid: str, report: typing.List[ResourceReportRecord]
+        self, resource_uuid: str, report: List[ResourceReportRecord]
     ):
         url = self._build_resource_url(
             Endpoints.MarketplaceProviderResources,
             resource_uuid,
             action="submit_report",
         )
-        payload = {"report": [dataclasses.asdict(record) for record in report]}
+        payload = {"report": report}
         return self._post(url, valid_states=[200], json=payload)
 
     def marketplace_provider_resource_get_team(self, resource_uuid: str):
@@ -1282,7 +1308,7 @@ class WaldurClient(object):
         :param timeout: a maximum amount of time to wait for operation completion.
         """
 
-        payload: typing.Dict[str, typing.Any] = {"ports": []}
+        payload: UpdateInstancePortsPayload = {"ports": []}
         for subnet in subnet_set:
             subnet = self._get_subnet(subnet)
             payload["ports"].append({"subnet": subnet["url"]})
@@ -1989,13 +2015,13 @@ class WaldurClient(object):
 
     def create_component_usages(
         self,
-        plan_period_uuid: typing.Optional[str] = None,
-        usages: typing.List[ComponentUsage] = [],
-        resource_uuid: typing.Optional[str] = None,
+        plan_period_uuid: Optional[str] = None,
+        usages: List[ComponentUsage] = [],
+        resource_uuid: Optional[str] = None,
     ):
         url = self._build_url(f"{Endpoints.MarketplaceComponentUsage}/set_usage/")
-        payload: typing.Dict[str, typing.Any] = {
-            "usages": [dataclasses.asdict(usage) for usage in usages],
+        payload: CreateComponentUsagePayload = {
+            "usages": usages,
         }
 
         if plan_period_uuid is not None:
@@ -2183,7 +2209,7 @@ class WaldurClient(object):
         )
 
     def create_remote_offering_user(
-        self, offering: str, user: str, username: typing.Optional[str] = None
+        self, offering: str, user: str, username: Optional[str] = None
     ):
         if is_uuid(offering):
             offering = self._build_resource_url(
@@ -2335,9 +2361,7 @@ class WaldurClient(object):
             "create_offering_component",
         )
         # Drop all keys with None or empty value
-        component_json = {
-            k: v for k, v in dataclasses.asdict(component).items() if v and k != "uuid"
-        }
+        component_json = {k: v for k, v in component.items() if v and k != "uuid"}
         return self._post(url, valid_states=[201], json=component_json)
 
     def update_offering_component(
@@ -2348,7 +2372,7 @@ class WaldurClient(object):
             offering_uuid,
             "update_offering_component",
         )
-        component_json = {k: v for k, v in dataclasses.asdict(component).items() if v}
+        component_json = {k: v for k, v in component.items() if v}
         return self._post(url, valid_states=[200], json=component_json)
 
     def create_support_issue(
