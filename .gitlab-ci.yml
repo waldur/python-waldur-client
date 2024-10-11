@@ -4,47 +4,11 @@ include:
   - project: "waldur/waldur-pipelines"
     file: "/templates/test/check-merge-compatibility.yml"
   - project: "waldur/waldur-pipelines"
-    file: "/templates/test/lint-md-files.yml"
-
-.Run tests template:
-  stage: test
-  interruptible: true
-  rules:
-    # Skip tests if specified
-    - if: '$SKIP_TESTS == "true" || $SKIP_TESTS == "yes"'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-    - if: '$CI_COMMIT_BRANCH == "master"'
-    # If tagged release
-    - if: '$CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+$/'
-    # If event is related to a created merge request
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  artifacts:
-    when: always
-    reports:
-      junit: report.xml
-  script:
-    - pip install poetry
-    - poetry config virtualenvs.create false
-    - poetry install
-    - pytest --junitxml=report.xml
-
-.Run linters template:
-  stage: test
-  interruptible: true
-  rules:
-    # Skip tests if specified
-    - if: '$SKIP_TESTS == "true" || $SKIP_TESTS == "yes"'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-    - if: '$CI_COMMIT_BRANCH == "master"'
-    # If tagged release
-    - if: '$CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+$/'
-    # If event is related to a created merge request
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  script:
-    - pip install pre-commit
-    - pre-commit run --all
+    file: "/templates/test/python-linters.yml"
+  - project: "waldur/waldur-pipelines"
+    file: "/templates/test/python-tests.yml"
+  - project: "waldur/waldur-pipelines"
+    file: "/templates/release/python-module-release.yml"
 
 Run python v3.9 linters:
   image: "registry.hpc.ut.ee/mirror/library/python:3.9"
@@ -110,14 +74,3 @@ Run python v3.12 tests:
 Run python v3.13 tests:
   image: "registry.hpc.ut.ee/mirror/library/python:3.13"
   extends: .Run tests template
-
-
-Publish python module tagged release:
-  image: python:3.9-alpine
-  script:
-    - pip install poetry
-    - poetry config http-basic.pypi $PYPI_USERNAME $PYPI_PASSWORD
-    - poetry config virtualenvs.create false
-    - sed -i "s/^version = \".*\"$/version = \"$CI_COMMIT_TAG\"/" pyproject.toml
-    - head pyproject.toml
-    - poetry publish --build

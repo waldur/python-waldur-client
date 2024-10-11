@@ -31,3 +31,6 @@ mypy_path = ["./src/"]
 disable_error_code = ["no-untyped-def", "no-untyped-call"]
 explicit_package_bases = true
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "--cov=waldur_client/"
