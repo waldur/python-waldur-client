@@ -14,7 +14,7 @@ classifiers = [
 packages = [{ include = "waldur_client" }]
 
 [tool.poetry.dependencies]
-python = ">=3.9"
+python = ">=3.8"
 requests = ">=2.6.0"
 typing-extensions = "^4.12.2"
 
