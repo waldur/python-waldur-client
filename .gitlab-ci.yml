@@ -10,6 +10,15 @@ include:
   - project: "waldur/waldur-pipelines"
     file: "/templates/release/python-module-release.yml"
 
+Run python v3.8 linters:
+  image: "registry.hpc.ut.ee/mirror/library/python:3.8"
+  extends: .Run linters template
+  before_script:
+    - |
+      echo 'default_language_version:' >> .pre-commit-config.yaml
+      echo '  python: python3.8' >> .pre-commit-config.yaml
+    - cat .pre-commit-config.yaml
+
 Run python v3.9 linters:
   image: "registry.hpc.ut.ee/mirror/library/python:3.9"
   extends: .Run linters template
@@ -54,6 +63,10 @@ Run python v3.13 linters:
       echo 'default_language_version:' >> .pre-commit-config.yaml
       echo '  python: python3.13' >> .pre-commit-config.yaml
     - cat .pre-commit-config.yaml
+
+Run python v3.8 tests:
+  image: "registry.hpc.ut.ee/mirror/library/python:3.8"
+  extends: .Run tests template
 
 Run python v3.9 tests:
   image: "registry.hpc.ut.ee/mirror/library/python:3.9"
