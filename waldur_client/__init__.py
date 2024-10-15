@@ -1014,11 +1014,20 @@ class WaldurClient(object):
     def get_marketplace_resource(self, resource_uuid):
         return self._get_resource(Endpoints.MarketplaceResources, resource_uuid)
 
+    def get_marketplace_provider_resource(self, resource_uuid):
+        return self._get_resource(Endpoints.MarketplaceProviderResources, resource_uuid)
+
     def filter_marketplace_resources(self, filters=None):
         return self._query_resource_list(Endpoints.MarketplaceResources, filters)
 
-    def list_marketplace_resources(
+    def filter_marketplace_provider_resources(self, filters=None):
+        return self._query_resource_list(
+            Endpoints.MarketplaceProviderResources, filters
+        )
+
+    def _list_marketplace_resources(
         self,
+        endpoint: str,
         provider_uuid: Optional[str] = None,
         state: Optional[str] = None,
         offering_uuid: Optional[str] = None,
@@ -1036,13 +1045,44 @@ class WaldurClient(object):
                 fields = [fields]
             params["field"] = fields
 
-        return self._query_resource_list(
+        return self._query_resource_list(endpoint, params)
+
+    def list_marketplace_resources(
+        self,
+        provider_uuid: Optional[str] = None,
+        state: Optional[str] = None,
+        offering_uuid: Optional[str] = None,
+        fields: Optional[List[str]] = None,
+    ):
+        return self._list_marketplace_resources(
             Endpoints.MarketplaceResources,
-            params,
+            provider_uuid,
+            state,
+            offering_uuid,
+            fields,
+        )
+
+    def list_marketplace_provider_resources(
+        self,
+        provider_uuid: Optional[str] = None,
+        state: Optional[str] = None,
+        offering_uuid: Optional[str] = None,
+        fields: Optional[List[str]] = None,
+    ):
+        return self._list_marketplace_resources(
+            Endpoints.MarketplaceProviderResources,
+            provider_uuid,
+            state,
+            offering_uuid,
+            fields,
         )
 
     def count_marketplace_resources(self, **kwargs):
         url = self._build_url(Endpoints.MarketplaceResources)
+        return self._get_count(url, **kwargs)
+
+    def count_marketplace_provider_resources(self, **kwargs):
+        url = self._build_url(Endpoints.MarketplaceProviderResources)
         return self._get_count(url, **kwargs)
 
     def marketplace_provider_resource_set_backend_id(
