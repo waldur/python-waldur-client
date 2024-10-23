@@ -1156,6 +1156,11 @@ class WaldurClient(object):
             Endpoints.MarketplaceResources, resource_uuid, kwargs
         )
 
+    def update_marketplace_provider_resource(self, resource_uuid: str, **kwargs):
+        return self._patch_resource(
+            Endpoints.MarketplaceProviderResources, resource_uuid, kwargs
+        )
+
     def get_instance_via_marketplace(self, name, project=None):
         """Get an openstack instance via marketplace.
 
@@ -1982,6 +1987,20 @@ class WaldurClient(object):
             options["callback_url"] = callback_url
         url = self._build_resource_url(
             Endpoints.MarketplaceResources, resource_uuid, action="terminate"
+        )
+        return self._post(url, valid_states=[200], json=options)["order_uuid"]
+
+    def marketplace_provider_resource_terminate_order(
+        self, resource_uuid, options=None, callback_url=None
+    ):
+        if options:
+            options = {"attributes": options}
+        if callback_url:
+            if not options:
+                options = {}
+            options["callback_url"] = callback_url
+        url = self._build_resource_url(
+            Endpoints.MarketplaceProviderResources, resource_uuid, action="terminate"
         )
         return self._post(url, valid_states=[200], json=options)["order_uuid"]
 
