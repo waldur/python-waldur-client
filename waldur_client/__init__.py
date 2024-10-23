@@ -1113,6 +1113,12 @@ class WaldurClient(object):
         )
         return self._get(url, valid_states=[200])
 
+    def marketplace_provider_resource_get_plan_periods(self, resource_uuid: str):
+        url = self._build_resource_url(
+            Endpoints.MarketplaceProviderResources, resource_uuid, action="plan_periods"
+        )
+        return self._get(url, valid_states=[200])
+
     def marketplace_resource_get_plan_periods(self, resource_uuid: str):
         url = self._build_resource_url(
             Endpoints.MarketplaceResources, resource_uuid, action="plan_periods"
