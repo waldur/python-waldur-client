@@ -1107,6 +1107,18 @@ class WaldurClient(object):
         payload = {"backend_metadata": backend_metadata}
         return self._post(url, valid_states=[200], json=payload)
 
+    def marketplace_provider_resource_set_as_erred(
+        self,
+        resource_uuid,
+        error_details: typing.Optional[typing.Dict[str, str]] = None,
+    ):
+        url = self._build_resource_url(
+            Endpoints.MarketplaceProviderResources,
+            resource_uuid,
+            action="set_as_erred",
+        )
+        return self._post(url, valid_states=[200], json=error_details)
+
     def marketplace_provider_resource_submit_report(
         self, resource_uuid: str, report: List[ResourceReportRecord]
     ):
