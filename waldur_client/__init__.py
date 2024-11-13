@@ -1119,6 +1119,17 @@ class WaldurClient(object):
         )
         return self._post(url, valid_states=[200], json=error_details)
 
+    def marketplace_provider_resource_set_as_ok(
+        self,
+        resource_uuid,
+    ):
+        url = self._build_resource_url(
+            Endpoints.MarketplaceProviderResources,
+            resource_uuid,
+            action="set_as_ok",
+        )
+        return self._post(url, valid_states=[200])
+
     def marketplace_provider_resource_submit_report(
         self, resource_uuid: str, report: List[ResourceReportRecord]
     ):
