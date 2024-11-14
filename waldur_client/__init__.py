@@ -124,6 +124,7 @@ class CreateComponentUsagePayload(TypedDict):
 
 class ListMarketplaceResourcesPayload(TypedDict):
     provider_uuid: NotRequired[str]
+    project_uuid: NotRequired[str]
     state: NotRequired[str]
     offering_uuid: NotRequired[str]
     field: NotRequired[List[str]]
@@ -1032,6 +1033,7 @@ class WaldurClient(object):
         state: Optional[str] = None,
         offering_uuid: Optional[str] = None,
         fields: Optional[List[str]] = None,
+        project_uuid: Optional[str] = None,
     ):
         params: ListMarketplaceResourcesPayload = {}
         if provider_uuid is not None:
@@ -1040,6 +1042,8 @@ class WaldurClient(object):
             params["state"] = state
         if offering_uuid is not None:
             params["offering_uuid"] = offering_uuid
+        if project_uuid is not None:
+            params["project_uuid"] = project_uuid
         if fields is not None:
             if not isinstance(fields, list):
                 fields = [fields]
@@ -1053,6 +1057,7 @@ class WaldurClient(object):
         state: Optional[str] = None,
         offering_uuid: Optional[str] = None,
         fields: Optional[List[str]] = None,
+        project_uuid: Optional[str] = None,
     ):
         return self._list_marketplace_resources(
             Endpoints.MarketplaceResources,
@@ -1060,6 +1065,7 @@ class WaldurClient(object):
             state,
             offering_uuid,
             fields,
+            project_uuid,
         )
 
     def list_marketplace_provider_resources(
