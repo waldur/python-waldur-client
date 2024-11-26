@@ -1900,6 +1900,18 @@ class WaldurClient(object):
         }
         return self._create_resource(Endpoints.Customers, payload=payload)
 
+    def delete_offering_user(self, offering_user):
+        """
+        Delete a offering user by UUID or URL
+
+        :param offering_user: offering user's UUID or URL
+        """
+        if is_uuid(offering_user):
+            return self._delete_resource(
+                Endpoints.MarketplaceOfferingUsers, offering_user
+            )
+        return self._delete_resource_by_url(offering_user)
+
     def delete_customer(self, customer):
         """
         Delete a customer by UUID or URL
