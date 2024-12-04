@@ -682,6 +682,10 @@ class WaldurClient(object):
         endpoint = self._build_url(Endpoints.OpenStackNetwork)
         return self._query_resource_list(endpoint, filters)
 
+    def list_marketplace_categories(self, filters=None):
+        endpoint = self._build_url(Endpoints.MarketplaceCategories)
+        return self._query_resource_list(endpoint, filters)
+
     def connect_subnet(self, uuid):
         return self._execute_resource_action(
             endpoint=Endpoints.OpenStackSubnet,
