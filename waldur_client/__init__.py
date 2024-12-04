@@ -170,6 +170,7 @@ class InvoiceState(Enum):
 class Endpoints:
     Configuration = "configuration"
     Customers = "customers"
+    EventSubscriptions = "event-subscriptions"
     FreeIPAProfiles = "freeipa-profiles"
     Invoice = "invoices"
     InvoiceItems = "invoice-items"
@@ -2549,6 +2550,26 @@ class WaldurClient(object):
         return self._delete_resource(
             Endpoints.MarketplaceRobotAccount,
             account_uuid,
+        )
+
+    def create_event_subscription(
+        self,
+        observable_objects: typing.List[typing.Dict[str, typing.Any]],
+        description=None,
+    ):
+        payload = {"observable_objects": observable_objects}
+        if description is not None:
+            payload["description"] = description
+        return self._create_resource(
+            Endpoints.EventSubscriptions, payload, valid_state=201
+        )
+
+    def list_event_subscriptions(self, filters=None):
+        return self._query_resource_list(Endpoints.EventSubscriptions, filters)
+
+    def delete_event_subscription(self, event_subscription_uuid: str):
+        return self._delete_resource(
+            Endpoints.EventSubscriptions, event_subscription_uuid
         )
 
 
