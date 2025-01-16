@@ -421,6 +421,93 @@ class InstanceStopTest(BaseWaldurClientTest):
         self.client.stop_instance("6b6e60870ad64085aadcdcbc1fd84a7e", wait=False)
 
 
+class OfferingManagementTest(BaseWaldurClientTest):
+    def setUp(self):
+        super(OfferingManagementTest, self).setUp()
+        self.offering_uuid = "test_offering_uuid"
+        self.base_url = "http://example.com:8000/api/marketplace-provider-offerings"
+
+    @responses.activate
+    def test_activate_offering_success(self):
+        """
+        Test that offering can be successfully activated:
+        - POST request is made to the correct URL
+        - Response state is 'Active'
+        """
+        url = f"{self.base_url}/{self.offering_uuid}/activate/"
+        responses.add(responses.POST, url, status=200, json={"state": "Active"})
+
+        response = self.client.activate_offering(self.offering_uuid)
+
+        self.assertEqual(len(responses.calls), 1, "Expected one API call to be made")
+        self.assertEqual(
+            response["state"],
+            "Active",
+            f"Expected state to be 'Active', got '{response.get('state')}'",
+        )
+
+    @responses.activate
+    def test_activate_offering_error(self):
+        """
+        Test that appropriate exception is raised when offering activation fails:
+        - Should raise WaldurClientException for 400 status
+        """
+        url = f"{self.base_url}/{self.offering_uuid}/activate/"
+        responses.add(
+            responses.POST,
+            url,
+            status=400,
+            json={"detail": "No Offering matches the given query."},
+        )
+
+        self.assertRaises(
+            WaldurClientException, self.client.activate_offering, self.offering_uuid
+        )
+
+    @responses.activate
+    def test_delete_offering_success(self):
+        """
+        Test that offering can be successfully deleted:
+        - DELETE request is made to the correct URL
+        - Status code 204 is handled correctly
+        """
+        url = f"{self.base_url}/{self.offering_uuid}/"
+        responses.add(responses.DELETE, url, status=204)
+
+        self.client.delete_offering(self.offering_uuid)
+
+        self.assertEqual(len(responses.calls), 1, "Expected one API call to be made")
+        self.assertEqual(
+            responses.calls[0].request.method,
+            "DELETE",
+            f"Expected DELETE method, got {responses.calls[0].request.method}",
+        )
+
+    @responses.activate
+    def test_delete_offering_error(self):
+        """
+        Test that appropriate exception is raised when offering deletion fails:
+        - Should raise WaldurClientException for 404 status
+        - Should verify correct request method and status code
+        """
+        url = f"{self.base_url}/{self.offering_uuid}/"
+        responses.add(responses.DELETE, url, status=404, json={"detail": "Not found"})
+
+        self.assertRaises(
+            WaldurClientException, self.client.delete_offering, self.offering_uuid
+        )
+        self.assertEqual(
+            responses.calls[0].request.method,
+            "DELETE",
+            f"Expected DELETE method, got {responses.calls[0].request.method}",
+        )
+        self.assertEqual(
+            responses.calls[0].response.status_code,
+            404,
+            f"Expected status code 404, got {responses.calls[0].response.status_code}",
+        )
+
+
 class SecurityGroupTest(BaseWaldurClientTest):
     security_group = {
         "name": "secure group",
