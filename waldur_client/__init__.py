@@ -1850,6 +1850,25 @@ class WaldurClient(object):
 
             return resource, True
 
+    def activate_offering(self, offering_uuid: str):
+        """
+        Activate a marketplace offering by changing its state to Active
+        :param offering_uuid: UUID of the offering to activate
+        """
+        url = self._build_resource_url(
+            Endpoints.MarketplaceProviderOffering, offering_uuid, action="activate"
+        )
+        return self._post(url, valid_states=[200])
+
+    def delete_offering(self, offering_uuid: str):
+        """
+        Delete a marketplace offering
+        :param offering_uuid: UUID of the offering to delete
+        """
+        return self._delete_resource(
+            Endpoints.MarketplaceProviderOffering, offering_uuid
+        )
+
     def get_customer(self, identifier, filters=None):
         return self._get_resource(Endpoints.Customers, identifier, filters)
 
