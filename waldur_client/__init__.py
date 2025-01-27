@@ -2070,6 +2070,14 @@ class WaldurClient(object):
         )
         return self._post(url, valid_states=[200], json=options)["order_uuid"]
 
+    def marketplace_provider_resource_refresh_last_sync(self, resource_uuid: str):
+        url = self._build_resource_url(
+            Endpoints.MarketplaceProviderResources,
+            resource_uuid,
+            action="refresh_last_sync",
+        )
+        return self._post(url, valid_states=[200])
+
     def get_invoice_for_customer(
         self,
         customer_uuid: str,
@@ -2412,23 +2420,6 @@ class WaldurClient(object):
 
     def list_slurm_associations(self, filters=None):
         return self._query_resource_list(Endpoints.SlurmAssociations, filters)
-
-    def set_slurm_allocation_limits(
-        self,
-        marketplace_resource_uuid: str,
-        limits: typing.Dict[str, int],
-    ):
-        if not is_uuid(marketplace_resource_uuid):
-            raise ValidationError(
-                "The UUID of marketplace resource has unexpected format: %s"
-                % marketplace_resource_uuid
-            )
-        url = self._build_resource_url(
-            Endpoints.MarketplaceSlurmRemote,
-            marketplace_resource_uuid,
-            "set_limits",
-        )
-        return self._post(url, valid_states=[200], json=limits)
 
     def list_slurm_allocation_user_usage(self, filters=None):
         return self._query_resource_list(Endpoints.SlurmAllocationUserUsages, filters)
