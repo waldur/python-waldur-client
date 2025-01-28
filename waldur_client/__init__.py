@@ -1,7 +1,7 @@
 import os
 import time
 from enum import Enum
-from typing import List, Optional, TypedDict
+from typing import List, Optional, TypedDict, Dict
 from typing_extensions import Required, NotRequired
 import typing
 from urllib.parse import urljoin
@@ -2077,6 +2077,19 @@ class WaldurClient(object):
             action="refresh_last_sync",
         )
         return self._post(url, valid_states=[200])
+
+    def marketplace_provider_resource_set_limits(
+        self, resource_uuid: str, limits: Dict[str, int]
+    ):
+        url = self._build_resource_url(
+            Endpoints.MarketplaceProviderResources,
+            resource_uuid,
+            action="set_limits",
+        )
+        payload = {
+            "limits": limits,
+        }
+        return self._post(url, valid_states=[200], json=payload)
 
     def get_invoice_for_customer(
         self,
