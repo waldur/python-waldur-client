@@ -7,6 +7,7 @@ import typing
 from urllib.parse import urljoin
 from uuid import UUID
 
+import datetime
 import requests
 import urllib3
 from urllib3.exceptions import InsecureRequestWarning
@@ -160,8 +161,10 @@ class InvoiceState(Enum):
 class Endpoints:
     Configuration = "configuration"
     Customers = "customers"
+    CustomerCredit = "customer-credits"
     EventSubscriptions = "event-subscriptions"
     FreeIPAProfiles = "freeipa-profiles"
+    Invitations = "user-invitations"
     Invoice = "invoices"
     InvoiceItems = "invoice-items"
     MarketplaceCategories = "marketplace-categories"
@@ -192,6 +195,7 @@ class Endpoints:
     OpenStackVolumeType = "openstack-volume-types"
     PaymentProfiles = "payment-profiles"
     Project = "projects"
+    ProjectCredit = "project-credits"
     ProjectTypes = "project-types"
     Provider = "service-settings"
     RemoteEduteams = "remote-eduteams"
@@ -2544,6 +2548,109 @@ class WaldurClient(object):
         return self._delete_resource(
             Endpoints.EventSubscriptions, event_subscription_uuid
         )
+
+    def create_project_credit(
+        self,
+        project_uuid: str,
+        value: float,
+        end_date: Optional[datetime.date] = None,
+        expected_consumption: Optional[float] = None,
+        grace_coefficient: Optional[float] = None,
+        minimal_consumption_logic: Optional[str] = None,
+        apply_as_minimal_consumption: Optional[bool] = None,
+    ):
+        payload = {
+            "project": self._build_resource_url(Endpoints.Project, project_uuid),
+            "value": value,
+            **{
+                k: v
+                for k, v in {
+                    "end_date": end_date,
+                    "expected_consumption": expected_consumption,
+                    "grace_coefficient": grace_coefficient,
+                    "minimal_consumption_logic": minimal_consumption_logic,
+                    "apply_as_minimal_consumption": apply_as_minimal_consumption,
+                }.items()
+                if v is not None
+            },
+        }
+        return self._create_resource(Endpoints.ProjectCredit, payload=payload)
+
+    def list_project_credits(self, filters=None):
+        return self._query_resource_list(Endpoints.ProjectCredit, filters)
+
+    def create_customer_credit(
+        self,
+        customer_uuid: str,
+        offering_uuids: List[str],
+        value: float,
+        end_date: Optional[datetime.date] = None,
+        expected_consumption: Optional[float] = None,
+        minimal_consumption_logic: Optional[str] = None,
+        grace_coefficient: Optional[float] = None,
+        apply_as_minimal_consumption: Optional[bool] = None,
+    ):
+        payload = {
+            "customer": self._build_resource_url(Endpoints.Customers, customer_uuid),
+            "offerings": [
+                self._build_resource_url(Endpoints.MarketplaceProviderOffering, uuid)
+                for uuid in offering_uuids
+            ],
+            "value": value,
+            **{
+                k: v
+                for k, v in {
+                    "end_date": end_date,
+                    "expected_consumption": expected_consumption,
+                    "minimal_consumption_logic": minimal_consumption_logic,
+                    "grace_coefficient": grace_coefficient,
+                    "apply_as_minimal_consumption": apply_as_minimal_consumption,
+                }.items()
+                if v is not None
+            },
+        }
+        return self._create_resource(Endpoints.CustomerCredit, payload=payload)
+
+    def list_customer_credits(self, filters=None):
+        return self._query_resource_list(Endpoints.CustomerCredit, filters)
+
+    def create_project_invitation(
+        self,
+        email: str,
+        project_uuid: str,
+        role_uuid: str,
+        full_name: Optional[str] = None,
+        native_name: Optional[str] = None,
+        tax_number: Optional[str] = None,
+        phone_number: Optional[str] = None,
+        organization: Optional[str] = None,
+        job_title: Optional[str] = None,
+        civil_number: Optional[str] = None,
+        extra_invitation_text: Optional[str] = None,
+    ):
+        payload = {
+            "email": email,
+            "scope": self._build_resource_url(Endpoints.Project, project_uuid),
+            "role": role_uuid,
+            **{
+                k: v
+                for k, v in {
+                    "full_name": full_name,
+                    "native_name": native_name,
+                    "tax_number": tax_number,
+                    "phone_number": phone_number,
+                    "organization": organization,
+                    "job_title": job_title,
+                    "civil_number": civil_number,
+                    "extra_invitation_text": extra_invitation_text,
+                }.items()
+                if v is not None
+            },
+        }
+        return self._create_resource(Endpoints.Invitations, payload=payload)
+
+    def list_invitations(self, filters=None):
+        return self._query_resource_list(Endpoints.Invitations, filters)
 
 
 def waldur_full_argument_spec(**kwargs):
