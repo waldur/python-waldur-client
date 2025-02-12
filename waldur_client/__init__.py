@@ -159,6 +159,7 @@ class InvoiceState(Enum):
 
 
 class Endpoints:
+    ComponentUserUsageLimits = "component-user-usage-limits"
     Configuration = "configuration"
     Customers = "customers"
     CustomerCredit = "customer-credits"
@@ -2203,6 +2204,28 @@ class WaldurClient(object):
             )
             payload["user"] = offering_user_url
         self._post(url, valid_states=[201], json=payload)
+
+    def list_component_user_usage_limits(self, filters=None):
+        return self._query_resource_list(Endpoints.ComponentUserUsageLimits, filters)
+
+    def create_component_user_usage_limit(
+        self,
+        resource_uuid: str,
+        component_uuid: str,
+        offering_user_uuid: str,
+        limit: float,
+    ):
+        payload = {
+            "resource": self._build_resource_url(
+                Endpoints.MarketplaceResources, resource_uuid
+            ),
+            "component": component_uuid,
+            "user": self._build_resource_url(
+                Endpoints.MarketplaceOfferingUsers, offering_user_uuid
+            ),
+            "limit": limit,
+        }
+        return self._create_resource(Endpoints.ComponentUserUsageLimits, payload)
 
     def get_remote_eduteams_user(self, cuid):
         return self._create_resource(
