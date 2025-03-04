@@ -1260,7 +1260,7 @@ class WaldurClient(object):
         tenant_uuid = instance["tenant_uuid"]
         for group in security_groups:
             security_group = self._get_tenant_security_group(tenant_uuid, group)
-            payload.append({"url": security_group["url"]})
+            payload.append(security_group["url"])
 
         self._execute_resource_action(
             endpoint=Endpoints.OpenStackInstance,
