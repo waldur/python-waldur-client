@@ -2572,6 +2572,11 @@ class WaldurClient(object):
             Endpoints.EventSubscriptions, event_subscription_uuid
         )
 
+    def get_event_subscription(self, event_subscription_uuid: str):
+        return self._query_resource_by_uuid(
+            Endpoints.EventSubscriptions, event_subscription_uuid
+        )
+
     def create_project_credit(
         self,
         project_uuid: str,
