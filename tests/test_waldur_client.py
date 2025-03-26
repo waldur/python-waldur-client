@@ -426,6 +426,19 @@ class OfferingManagementTest(BaseWaldurClientTest):
         super(OfferingManagementTest, self).setUp()
         self.offering_uuid = "test_offering_uuid"
         self.base_url = "http://example.com:8000/api/marketplace-provider-offerings"
+        # Sample order for reuse in tests
+        self.sample_order = {
+            "offering": f"http://example.com:8000/api/marketplace-public-offerings/{self.offering_uuid}/",
+            "offering_name": "Test Offering",
+            "offering_uuid": self.offering_uuid,
+            "uuid": "order-uuid",
+            "created": "2025-02-14T13:55:44.709546+00:00",
+            "type": "Create",
+            "state": "executing",
+            "marketplace_resource_uuid": "test-marketplace-resource-uuid",
+            "project_name": "Test Project",
+            "project_uuid": "test-project-uuid",
+        }
 
     @responses.activate
     def test_activate_offering_success(self):
@@ -506,6 +519,90 @@ class OfferingManagementTest(BaseWaldurClientTest):
             404,
             f"Expected status code 404, got {responses.calls[0].response.status_code}",
         )
+
+    @responses.activate
+    def test_list_offering_orders(self):
+        """
+        Test that offering orders can be successfully listed:
+        - GET request is made to the correct URL
+        - Response contains expected orders
+        """
+        url = f"{self.base_url}/{self.offering_uuid}/orders/"
+        expected_orders = [self.sample_order]
+        responses.add(responses.GET, url, status=200, json=expected_orders)
+
+        response = self.client.marketplace_provider_offering_list_orders(
+            self.offering_uuid
+        )
+
+        self.assertEqual(len(responses.calls), 1, "Expected one API call to be made")
+        self.assertEqual(
+            response, expected_orders, "Response should match expected orders"
+        )
+        self.assertEqual(
+            responses.calls[0].request.method,
+            "GET",
+            f"Expected GET method, got {responses.calls[0].request.method}",
+        )
+        self.assertEqual(
+            responses.calls[0].request.url,
+            url,
+            f"Expected URL {url}, got {responses.calls[0].request.url}",
+        )
+
+    @responses.activate
+    def test_get_offering_order_details(self):
+        """
+        Test that specific offering order details can be retrieved:
+        - GET request is made to the correct URL
+        - Response contains expected order details
+        """
+        order_uuid = "order-uuid"
+        url = f"{self.base_url}/{self.offering_uuid}/orders/{order_uuid}/"
+        responses.add(responses.GET, url, status=200, json=self.sample_order)
+
+        response = self.client.marketplace_provider_offering_get_order(
+            self.offering_uuid, order_uuid
+        )
+
+        self.assertEqual(len(responses.calls), 1, "Expected one API call to be made")
+        self.assertEqual(
+            response, self.sample_order, "Response should match expected order details"
+        )
+        self.assertEqual(
+            responses.calls[0].request.method,
+            "GET",
+            f"Expected GET method, got {responses.calls[0].request.method}",
+        )
+
+    @responses.activate
+    def test_list_offering_orders_with_filters(self):
+        """
+        Test that offering orders can be filtered:
+        - GET request includes filter parameters
+        - Response contains filtered orders
+        """
+        url = f"{self.base_url}/{self.offering_uuid}/orders/"
+        filters = {"state": "executing", "created_after": "2025-01-01"}
+
+        # Modify sample order to match filter
+        filtered_order = dict(self.sample_order)
+        filtered_order["state"] = "executing"
+        expected_orders = [filtered_order]
+
+        responses.add(responses.GET, url, status=200, json=expected_orders)
+
+        response = self.client.marketplace_provider_offering_list_orders(
+            self.offering_uuid, filters=filters
+        )
+
+        self.assertEqual(len(responses.calls), 1)
+        self.assertEqual(response, expected_orders)
+
+        # Verify that filters were passed correctly
+        query_params = responses.calls[0].request.url.split("?")[1]
+        self.assertIn("state=executing", query_params)
+        self.assertIn("created_after=2025-01-01", query_params)
 
 
 class SecurityGroupTest(BaseWaldurClientTest):

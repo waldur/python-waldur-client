@@ -2680,6 +2680,39 @@ class WaldurClient(object):
     def list_invitations(self, filters=None):
         return self._query_resource_list(Endpoints.Invitations, filters)
 
+    def marketplace_provider_offering_list_orders(
+        self, offering_uuid: str, filters=None
+    ):
+        """List orders for a marketplace provider offering.
+
+        :param offering_uuid: UUID of the marketplace provider offering
+        :param filters: Optional query parameters for filtering
+        :return: List of orders
+        """
+        url = self._build_resource_url(
+            Endpoints.MarketplaceProviderOffering,
+            offering_uuid,
+            action="orders",
+        )
+        return self._get_all(url, params=filters)
+
+    def marketplace_provider_offering_get_order(
+        self, offering_uuid: str, order_uuid: str
+    ):
+        """Get details of a specific order for a marketplace provider offering.
+
+        :param offering_uuid: UUID of the marketplace provider offering
+        :param order_uuid: UUID of the order
+        :return: Order details
+        """
+        url = self._build_resource_url(
+            Endpoints.MarketplaceProviderOffering,
+            offering_uuid,
+            sub_endpoint="orders",
+            uid2=order_uuid,
+        )
+        return self._get(url, valid_states=[200])
+
 
 def waldur_full_argument_spec(**kwargs):
     spec = dict(
