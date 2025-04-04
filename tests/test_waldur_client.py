@@ -788,3 +788,148 @@ class TestPaginatedList(BaseWaldurClientTest):
 
         result = self.client.list_customers()
         self.assertEqual(result, [{"name": "Customer 1"}, {"name": "Customer 2"}])
+
+
+class MarketplaceRobotAccountTest(BaseWaldurClientTest):
+    """
+    Test that the marketplace robot account set state methods return a 200 status code
+    """
+
+    def setUp(self):
+        super(MarketplaceRobotAccountTest, self).setUp()
+        self.account_uuid = "test_robot_account_uuid"
+        self.base_url = "http://example.com:8000/api/marketplace-robot-accounts"
+
+    @responses.activate
+    def test_marketplace_robot_account_set_state_ok(self):
+        """Test that robot account state can be set to ok"""
+        url = f"{self.base_url}/{self.account_uuid}/set_state_ok/"
+
+        # Need to include a json response because that's what the client will return
+        responses.add(
+            responses.POST,
+            url,
+            json={"state": "OK", "uuid": self.account_uuid},
+            status=200,
+        )
+
+        response = self.client.marketplace_robot_account_set_state_ok(self.account_uuid)
+
+        # Test the processed response (JSON data)
+        self.assertEqual(
+            response["state"], "OK", f"Expected state 'OK', got {response['state']}"
+        )
+        self.assertEqual(
+            response["uuid"],
+            self.account_uuid,
+            f"Expected uuid '{self.account_uuid}', got {response['uuid']}",
+        )
+        self.assertEqual(
+            len(responses.calls),
+            1,
+            f"Expected 1 call to be made, got {len(responses.calls)}",
+        )
+
+    @responses.activate
+    def test_marketplace_robot_account_set_state_request_deletion(self):
+        """
+        Test that the marketplace robot account set state request deletion method returns a 200 status code
+        """
+        url = f"{self.base_url}/{self.account_uuid}/set_state_request_deletion/"
+        responses.add(
+            responses.POST,
+            url,
+            json={"state": "REQUEST_DELETION", "uuid": self.account_uuid},
+            status=200,
+        )
+        response = self.client.marketplace_robot_account_set_state_request_deletion(
+            self.account_uuid
+        )
+        self.assertEqual(
+            response["state"],
+            "REQUEST_DELETION",
+            f"Expected state 'REQUEST_DELETION', got {response['state']}",
+        )
+        self.assertEqual(
+            len(responses.calls),
+            1,
+            f"Expected 1 call to be made, got {len(responses.calls)}",
+        )
+
+    @responses.activate
+    def test_marketplace_robot_account_set_state_deleted(self):
+        """
+        Test that the marketplace robot account set state deleted method returns a 200 status code
+        """
+        url = f"{self.base_url}/{self.account_uuid}/set_state_deleted/"
+        responses.add(
+            responses.POST,
+            url,
+            json={"state": "DELETED", "uuid": self.account_uuid},
+            status=200,
+        )
+        response = self.client.marketplace_robot_account_set_state_deleted(
+            self.account_uuid
+        )
+        self.assertEqual(
+            response["state"],
+            "DELETED",
+            f"Expected state 'DELETED', got {response['state']}",
+        )
+        self.assertEqual(
+            len(responses.calls),
+            1,
+            f"Expected 1 call to be made, got {len(responses.calls)}",
+        )
+
+    @responses.activate
+    def test_marketplace_robot_account_set_state_erred(self):
+        """
+        Test that the marketplace robot account set state erred method returns a 200 status code
+        """
+        url = f"{self.base_url}/{self.account_uuid}/set_state_erred/"
+        responses.add(
+            responses.POST,
+            url,
+            json={"state": "ERRED", "uuid": self.account_uuid},
+            status=200,
+        )
+        response = self.client.marketplace_robot_account_set_state_erred(
+            self.account_uuid
+        )
+        self.assertEqual(
+            response["state"],
+            "ERRED",
+            f"Expected state 'ERRED', got {response['state']}",
+        )
+        self.assertEqual(
+            len(responses.calls),
+            1,
+            f"Expected 1 call to be made, got {len(responses.calls)}",
+        )
+
+    @responses.activate
+    def test_marketplace_robot_account_set_state_creating(self):
+        """
+        Test that the marketplace robot account set state creating method returns a 200 status code
+        """
+        url = f"{self.base_url}/{self.account_uuid}/set_state_creating/"
+        responses.add(
+            responses.POST,
+            url,
+            json={"state": "CREATING", "uuid": self.account_uuid},
+            status=200,
+        )
+        response = self.client.marketplace_robot_account_set_state_creating(
+            self.account_uuid
+        )
+        self.assertEqual(
+            response["state"],
+            "CREATING",
+            f"Expected state 'CREATING', got {response['state']}",
+        )
+        self.assertEqual(
+            len(responses.calls),
+            1,
+            f"Expected 1 call to be made, got {len(responses.calls)}",
+        )
