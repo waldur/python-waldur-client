@@ -2546,6 +2546,46 @@ class WaldurClient(object):
             payload,
         )
 
+    def marketplace_robot_account_set_state_ok(self, account_uuid: str):
+        url = self._build_resource_url(
+            Endpoints.MarketplaceRobotAccount,
+            account_uuid,
+            action="set_state_ok",
+        )
+        return self._post(url, valid_states=[200])
+
+    def marketplace_robot_account_set_state_request_deletion(self, account_uuid: str):
+        url = self._build_resource_url(
+            Endpoints.MarketplaceRobotAccount,
+            account_uuid,
+            action="set_state_request_deletion",
+        )
+        return self._post(url, valid_states=[200])
+
+    def marketplace_robot_account_set_state_deleted(self, account_uuid: str):
+        url = self._build_resource_url(
+            Endpoints.MarketplaceRobotAccount,
+            account_uuid,
+            action="set_state_deleted",
+        )
+        return self._post(url, valid_states=[200])
+
+    def marketplace_robot_account_set_state_erred(self, account_uuid: str):
+        url = self._build_resource_url(
+            Endpoints.MarketplaceRobotAccount,
+            account_uuid,
+            action="set_state_erred",
+        )
+        return self._post(url, valid_states=[200])
+
+    def marketplace_robot_account_set_state_creating(self, account_uuid: str):
+        url = self._build_resource_url(
+            Endpoints.MarketplaceRobotAccount,
+            account_uuid,
+            action="set_state_creating",
+        )
+        return self._post(url, valid_states=[200])
+
     def delete_robot_account(self, account_uuid):
         return self._delete_resource(
             Endpoints.MarketplaceRobotAccount,
