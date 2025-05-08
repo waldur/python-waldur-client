@@ -2150,13 +2150,16 @@ class WaldurClient(object):
             filters["payment_type"] = filters["payment_type"].value
         return self._query_resource_list(Endpoints.PaymentProfiles, filters)
 
-    def list_component_usages(self, resource_uuid, date_after=None, date_before=None):
+    def list_component_usages(
+        self, resource_uuid, date_after=None, date_before=None, billing_period=None
+    ):
         return self._query_resource_list(
             Endpoints.MarketplaceComponentUsage,
             {
                 "resource_uuid": resource_uuid,
                 "date_after": date_after,
                 "date_before": date_before,
+                "billing_period": billing_period,
             },
         )
 
